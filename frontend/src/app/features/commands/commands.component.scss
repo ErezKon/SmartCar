@@ -1,0 +1,112 @@
+.commands-container {
+  padding: 24px;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+    margin-bottom: 24px;
+  }
+}
+
+.no-vehicle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fff3e0;
+  border-radius: 8px;
+  margin-bottom: 16px;
+
+  mat-icon { color: #ef6c00; }
+  p { margin: 0; }
+}
+
+.tab-content {
+  padding: 16px 0;
+
+  mat-card {
+    margin-bottom: 16px;
+  }
+}
+
+.green-avatar { background: #4caf50 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
+.orange-avatar { background: #ff9800 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
+.blue-avatar { background: #2196f3 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
+.purple-avatar { background: #9c27b0 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
+.red-avatar { background: #f44336 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
+.gray-avatar { background: #757575 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
+
+.button-row {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  flex-wrap: wrap;
+
+  &.center {
+    justify-content: center;
+  }
+}
+
+.charge-limit-section {
+  padding: 16px 0;
+
+  h3 {
+    margin: 0 0 8px;
+    font-weight: 400;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+
+    mat-slider {
+      flex: 1;
+    }
+
+    .limit-value {
+      font-size: 1.5rem;
+      font-weight: 500;
+      min-width: 60px;
+      text-align: right;
+    }
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 150px;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  color: rgba(0, 0, 0, 0.38);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+  }
+}
+
+table {
+  width: 100%;
+}

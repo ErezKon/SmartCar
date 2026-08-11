@@ -1,0 +1,27 @@
+{
+  "name": "smartcar-mg4",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack Node.js app integrating with Smartcar API v3 for the MG4 X Range 2026",
+  "scripts": {
+    "dev": "npm run dev:backend & npm run dev:frontend & wait",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "dev:cli": "cd cli && npx tsx src/index.ts",
+    "build": "npm run build:backend && npm run build:frontend && npm run build:cli",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npx ng build --configuration production",
+    "build:cli": "cd cli && npm run build",
+    "start": "cd backend && npm start",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install && cd ../cli && npm install",
+    "docker:up": "./deploy-docker.sh up",
+    "docker:down": "./deploy-docker.sh down",
+    "docker:rebuild": "./deploy-docker.sh rebuild",
+    "docker:logs": "./deploy-docker.sh logs",
+    "docker:status": "./deploy-docker.sh status",
+    "typecheck": "cd backend && npx tsc --noEmit && cd ../cli && npx tsc --noEmit"
+  },
+  "keywords": ["smartcar", "mg4", "vehicle", "api", "ev"],
+  "author": "",
+  "license": "ISC"
+}

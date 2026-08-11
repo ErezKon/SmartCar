@@ -1,0 +1,92 @@
+<div class="connect-container">
+  <h2><mat-icon>link</mat-icon> Smartcar Connect</h2>
+
+  <!-- Callback Status -->
+  <mat-card *ngIf="callbackStatus" class="callback-card" [class.success]="callbackStatus === 'success'" [class.error]="callbackStatus === 'error'">
+    <mat-card-content>
+      <mat-icon>{{ callbackStatus === 'success' ? 'check_circle' : 'error' }}</mat-icon>
+      <span>{{ callbackMessage }}</span>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Connect Form -->
+  <mat-card class="connect-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>add_circle</mat-icon>
+      <mat-card-title>Connect a Vehicle</mat-card-title>
+      <mat-card-subtitle>Authorize access to your vehicle via Smartcar</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Mode</mat-label>
+          <mat-select [(ngModel)]="mode">
+            <mat-option value="simulated">Simulated</mat-option>
+            <mat-option value="live">Live</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Make (optional)</mat-label>
+          <mat-select [(ngModel)]="make">
+            <mat-option value="">Any</mat-option>
+            <mat-option value="MG">MG</mat-option>
+            <mat-option value="TESLA">Tesla</mat-option>
+            <mat-option value="BMW">BMW</mat-option>
+            <mat-option value="FORD">Ford</mat-option>
+            <mat-option value="VOLKSWAGEN">Volkswagen</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-checkbox [(ngModel)]="singleSelect">Single vehicle select</mat-checkbox>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="connectVehicle()">
+        <mat-icon>link</mat-icon> Connect Vehicle
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Connected Vehicles -->
+  <mat-card class="vehicles-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>directions_car</mat-icon>
+      <mat-card-title>Connected Vehicles</mat-card-title>
+      <mat-card-subtitle>{{ connections.length }} vehicle(s) connected</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list *ngIf="connections.length > 0">
+        <mat-list-item *ngFor="let conn of connections" (click)="selectVehicle(conn)" class="vehicle-item">
+          <mat-icon matListItemIcon>directions_car</mat-icon>
+          <div matListItemTitle>{{ getVehicleLabel(conn) }}</div>
+          <div matListItemLine>
+            <app-status-badge [status]="conn.attributes.vehicle.mode || 'unknown'" size="small"></app-status-badge>
+            <span class="vehicle-id">{{ conn.attributes.vehicleId }}</span>
+          </div>
+        </mat-list-item>
+      </mat-list>
+      <div *ngIf="connections.length === 0" class="empty-state">
+        <mat-icon>directions_car</mat-icon>
+        <p>No vehicles connected yet. Use the form above to connect one.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Connected Users -->
+  <mat-card class="users-card" *ngIf="users.length > 0">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>people</mat-icon>
+      <mat-card-title>Connected Users</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list>
+        <mat-list-item *ngFor="let user of users">
+          <mat-icon matListItemIcon>person</mat-icon>
+          <div matListItemTitle>{{ user.userId }}</div>
+          <div matListItemLine>Connected {{ user.createdAt }}</div>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+</div>

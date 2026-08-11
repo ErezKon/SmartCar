@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smartcar-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    volumes:
+      - backend-data:/app/data
+      - backend-logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_PATH=/app/data/smartcar.db
+      - SMARTCAR_CLIENT_ID=${SMARTCAR_CLIENT_ID}
+      - SMARTCAR_CLIENT_SECRET=${SMARTCAR_CLIENT_SECRET}
+      - SMARTCAR_REDIRECT_URI=${SMARTCAR_REDIRECT_URI:-http://localhost:3000/auth/callback}
+      - SMARTCAR_CONNECT_MODE=${SMARTCAR_CONNECT_MODE:-simulated}
+      - SMARTCAR_APP_MANAGEMENT_TOKEN=${SMARTCAR_APP_MANAGEMENT_TOKEN}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:4200}
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smartcar-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-4200}:4200"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4200/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  backend-data:
+    driver: local
+  backend-logs:
+    driver: local

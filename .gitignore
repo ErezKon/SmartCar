@@ -1,0 +1,12 @@
+.vscode/
+node_modules/
+.env
+backend/node_modules/
+backend/.env
+backend/.vscode/
+backend/dist/
+frontend/node_modules/
+frontend/dist/
+frontend/.vscode/
+cli/node_modules/
+cli/dist/

@@ -1,0 +1,8 @@
+<button mat-raised-button
+        [color]="color"
+        [disabled]="loading || disabled"
+        (click)="onClick()">
+  <mat-spinner *ngIf="loading" diameter="20" class="spinner"></mat-spinner>
+  <mat-icon *ngIf="!loading" [style.color]="statusColor">{{ statusIcon }}</mat-icon>
+  <span class="label">{{ label }}</span>
+</button>

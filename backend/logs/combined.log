@@ -1,0 +1,75 @@
+2026-08-11 14:41:59 [INFO] New SQLite database created at /home/sio/Code/smartcar/backend/data/smartcar.db
+2026-08-11 14:41:59 [INFO] Running database migrations...
+2026-08-11 14:41:59 [INFO] Database migrations completed
+2026-08-11 14:41:59 [INFO] Smartcar backend server running on port 3000
+2026-08-11 14:41:59 [INFO] Mode: simulated
+2026-08-11 14:41:59 [INFO] Frontend URL: http://localhost:4200
+2026-08-11 14:42:06 [INFO] Received SIGTERM, shutting down gracefully...
+2026-08-11 14:42:16 [INFO] SQLite database loaded from /home/sio/Code/smartcar/backend/data/smartcar.db
+2026-08-11 14:42:16 [INFO] Running database migrations...
+2026-08-11 14:42:16 [INFO] Database migrations completed
+2026-08-11 14:42:16 [INFO] Smartcar backend server running on port 3000
+2026-08-11 14:42:16 [INFO] Mode: simulated
+2026-08-11 14:42:16 [INFO] Frontend URL: http://localhost:4200
+2026-08-11 14:42:17 [INFO] 127.0.0.1 - - [11/Aug/2026:11:42:17 +0000] "GET /health HTTP/1.1" 200 54 "-" "curl/7.61.1"
+2026-08-11 14:42:17 [INFO] 127.0.0.1 - - [11/Aug/2026:11:42:17 +0000] "GET /auth/status HTTP/1.1" 200 99 "-" "curl/7.61.1"
+2026-08-11 14:42:17 [INFO] 127.0.0.1 - - [11/Aug/2026:11:42:17 +0000] "GET /auth/token HTTP/1.1" 200 59 "-" "curl/7.61.1"
+2026-08-11 14:54:13 [INFO] SQLite database loaded from /home/sio/Code/smartcar/backend/data/smartcar.db
+2026-08-11 14:54:15 [INFO] 127.0.0.1 - - [11/Aug/2026:11:54:15 +0000] "GET /health HTTP/1.1" 200 54 "-" "curl/7.61.1"
+2026-08-11 14:54:24 [INFO] SQLite database loaded from /home/sio/Code/smartcar/backend/data/smartcar.db
+2026-08-11 14:54:24 [INFO] Running database migrations...
+2026-08-11 14:54:24 [INFO] Database migrations completed
+2026-08-11 14:54:24 [INFO] Smartcar backend server running on port 3000
+2026-08-11 14:54:24 [INFO] Mode: simulated
+2026-08-11 14:54:24 [INFO] Frontend URL: http://localhost:4200
+2026-08-11 14:54:26 [INFO] 127.0.0.1 - - [11/Aug/2026:11:54:26 +0000] "GET /health HTTP/1.1" 200 54 "-" "curl/7.61.1"
+2026-08-11 14:54:26 [INFO] 127.0.0.1 - - [11/Aug/2026:11:54:26 +0000] "GET /api/vehicles/signals/catalog HTTP/1.1" 200 22737 "-" "curl/7.61.1"
+2026-08-11 14:54:26 [INFO] Fetching new access token from Smartcar IAM...
+2026-08-11 14:54:26 [ERROR] Authentication middleware error: fetch failed
+2026-08-11 14:54:26 [INFO] 127.0.0.1 - - [11/Aug/2026:11:54:26 +0000] "GET /api/connections HTTP/1.1" 401 137 "-" "curl/7.61.1"
+2026-08-11 14:54:37 [INFO] Received SIGTERM, shutting down gracefully...
+2026-08-11 15:28:10 [INFO] SQLite database loaded from /home/sio/Code/smartcar/backend/data/smartcar.db
+2026-08-11 15:28:10 [INFO] Running database migrations...
+2026-08-11 15:28:10 [INFO] Database migrations completed
+2026-08-11 15:28:10 [INFO] Smartcar backend server running on port 3000
+2026-08-11 15:28:10 [INFO] Mode: simulated
+2026-08-11 15:28:10 [INFO] Frontend URL: http://localhost:4200
+2026-08-11 15:28:17 [INFO] Received SIGTERM, shutting down gracefully...
+2026-08-11 15:28:28 [INFO] SQLite database loaded from /home/sio/Code/smartcar/backend/data/smartcar.db
+2026-08-11 15:28:28 [INFO] Running database migrations...
+2026-08-11 15:28:28 [INFO] Database migrations completed
+2026-08-11 15:28:28 [INFO] Smartcar backend server running on port 3000
+2026-08-11 15:28:28 [INFO] Mode: simulated
+2026-08-11 15:28:28 [INFO] Frontend URL: http://localhost:4200
+2026-08-11 15:28:36 [ERROR] Compatibility check error: fetch failed
+2026-08-11 15:28:36 [INFO] 127.0.0.1 - - [11/Aug/2026:12:28:36 +0000] "GET /api/compatibility HTTP/1.1" 500 66 "-" "curl/7.61.1"
+2026-08-11 15:28:42 [ERROR] MG compatibility check error: fetch failed
+2026-08-11 15:28:42 [INFO] 127.0.0.1 - - [11/Aug/2026:12:28:42 +0000] "GET /api/compatibility/mg HTTP/1.1" 500 69 "-" "curl/7.61.1"
+2026-08-11 15:28:42 [INFO] 127.0.0.1 - - [11/Aug/2026:12:28:42 +0000] "GET /api/webhook-events HTTP/1.1" 200 11 "-" "curl/7.61.1"
+2026-08-11 15:28:42 [INFO] Fetching new access token from Smartcar IAM...
+2026-08-11 15:28:43 [ERROR] Authentication middleware error: fetch failed
+2026-08-11 15:28:43 [INFO] 127.0.0.1 - - [11/Aug/2026:12:28:43 +0000] "GET /api/management/applications HTTP/1.1" 401 137 "-" "curl/7.61.1"
+2026-08-11 15:28:43 [INFO] Fetching new access token from Smartcar IAM...
+2026-08-11 15:28:43 [ERROR] Authentication middleware error: fetch failed
+2026-08-11 15:28:43 [INFO] 127.0.0.1 - - [11/Aug/2026:12:28:43 +0000] "GET /api/webhooks HTTP/1.1" 401 137 "-" "curl/7.61.1"
+2026-08-11 15:28:43 [INFO] Fetching new access token from Smartcar IAM...
+2026-08-11 15:28:43 [ERROR] Authentication middleware error: fetch failed
+2026-08-11 15:28:43 [INFO] 127.0.0.1 - - [11/Aug/2026:12:28:43 +0000] "GET /api/subscriptions HTTP/1.1" 401 137 "-" "curl/7.61.1"
+2026-08-11 15:28:43 [WARN] Webhook received without SC-Signature header
+2026-08-11 15:28:43 [INFO] 127.0.0.1 - - [11/Aug/2026:12:28:43 +0000] "POST /webhooks/receive HTTP/1.1" 401 39 "-" "curl/7.61.1"
+2026-08-11 15:28:43 [INFO] 127.0.0.1 - - [11/Aug/2026:12:28:43 +0000] "POST /api/compatibility/clear-cache HTTP/1.1" 200 26 "-" "curl/7.61.1"
+2026-08-11 15:37:18 [INFO] SQLite database loaded from /home/sio/Code/smartcar/backend/data/smartcar.db
+2026-08-11 15:37:18 [INFO] Running database migrations...
+2026-08-11 15:37:18 [INFO] Database migrations completed
+2026-08-11 15:37:18 [INFO] Smartcar backend server running on port 3000
+2026-08-11 15:37:18 [INFO] Mode: simulated
+2026-08-11 15:37:18 [INFO] Frontend URL: http://localhost:4200
+2026-08-11 15:37:30 [INFO] 127.0.0.1 - - [11/Aug/2026:12:37:30 +0000] "GET /auth/status HTTP/1.1" 200 99 "-" "node"
+2026-08-11 15:37:36 [INFO] 127.0.0.1 - - [11/Aug/2026:12:37:36 +0000] "GET /auth/token HTTP/1.1" 200 59 "-" "node"
+2026-08-11 15:37:41 [INFO] 127.0.0.1 - - [11/Aug/2026:12:37:41 +0000] "GET /api/vehicles/signals/catalog HTTP/1.1" 200 22737 "-" "node"
+2026-08-11 15:37:47 [INFO] 127.0.0.1 - - [11/Aug/2026:12:37:47 +0000] "GET /api/vehicles/signals/catalog HTTP/1.1" 200 22737 "-" "node"
+2026-08-11 15:38:16 [INFO] 127.0.0.1 - - [11/Aug/2026:12:38:16 +0000] "GET /api/vehicles/signals/catalog HTTP/1.1" 200 22737 "-" "node"
+2026-08-11 15:38:23 [INFO] 127.0.0.1 - - [11/Aug/2026:12:38:23 +0000] "GET /api/vehicles/signals/catalog HTTP/1.1" 200 22737 "-" "node"
+2026-08-11 15:38:34 [ERROR] MG compatibility check error: fetch failed
+2026-08-11 15:38:34 [INFO] 127.0.0.1 - - [11/Aug/2026:12:38:34 +0000] "GET /api/compatibility/mg HTTP/1.1" 500 69 "-" "node"
+2026-08-11 15:38:41 [INFO] 127.0.0.1 - - [11/Aug/2026:12:38:41 +0000] "GET /api/webhook-events?limit=20&offset=0 HTTP/1.1" 200 11 "-" "node"

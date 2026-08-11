@@ -1,0 +1,14 @@
+<mat-form-field appearance="outline" class="vehicle-select">
+  <mat-label>
+    <mat-icon>directions_car</mat-icon> Vehicle
+  </mat-label>
+  <mat-select [(ngModel)]="selectedVehicleId"
+              (selectionChange)="onVehicleChange($event.value)"
+              [disabled]="loading || connections.length === 0">
+    <mat-option *ngFor="let conn of connections" [value]="conn.attributes.vehicleId">
+      {{ getVehicleLabel(conn) }}
+      <span class="mode-badge">{{ conn.attributes.vehicle.mode || 'unknown' }}</span>
+    </mat-option>
+  </mat-select>
+  <mat-hint *ngIf="connections.length === 0 && !loading">No vehicles connected</mat-hint>
+</mat-form-field>

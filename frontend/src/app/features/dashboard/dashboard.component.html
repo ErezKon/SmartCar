@@ -1,0 +1,147 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h2>
+      <mat-icon>dashboard</mat-icon>
+      Vehicle Dashboard
+    </h2>
+    <button mat-icon-button (click)="refresh()" [disabled]="loading">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading vehicle data...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon>warning</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" routerLink="/connect">Connect Vehicle</button>
+  </div>
+
+  <div *ngIf="!loading && !error" class="dashboard-grid">
+    <!-- Vehicle Info Card -->
+    <mat-card class="info-card vehicle-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>directions_car</mat-icon>
+        <mat-card-title>{{ vehicle?.year }} {{ vehicle?.make }} {{ vehicle?.model }}</mat-card-title>
+        <mat-card-subtitle>{{ vehicle?.powertrainType | uppercase }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">Odometer</span>
+          <span class="value">{{ odometer }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Vehicle ID</span>
+          <span class="value id">{{ vehicleId }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Battery & Charge Card -->
+    <mat-card class="info-card battery-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>battery_charging_full</mat-icon>
+        <mat-card-title>Battery & Charging</mat-card-title>
+        <mat-card-subtitle>
+          <app-status-badge [status]="isCharging ? 'Charging' : 'Not Charging'" size="small"></app-status-badge>
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="battery-indicator">
+          <div class="battery-bar">
+            <div class="battery-fill" [style.width.%]="batteryLevel"
+                 [class.low]="batteryLevel < 20"
+                 [class.mid]="batteryLevel >= 20 && batteryLevel < 50"
+                 [class.high]="batteryLevel >= 50"></div>
+          </div>
+          <span class="battery-pct">{{ batteryLevel }}%</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Range</span>
+          <span class="value">{{ range }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Charge Rate</span>
+          <span class="value">{{ chargeRate }}</span>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <app-command-button label="Start Charge" icon="bolt" color="primary"
+          [status]="chargeStartStatus" [loading]="chargeStartStatus === 'loading'"
+          (execute)="startCharging()"></app-command-button>
+        <app-command-button label="Stop Charge" icon="stop" color="warn"
+          [status]="chargeStopStatus" [loading]="chargeStopStatus === 'loading'"
+          (execute)="stopCharging()"></app-command-button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Security Card -->
+    <mat-card class="info-card security-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>shield</mat-icon>
+        <mat-card-title>Security</mat-card-title>
+        <mat-card-subtitle>
+          <app-status-badge [status]="isLocked ? 'Locked' : 'Unlocked'" size="small"></app-status-badge>
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="lock-display">
+          <mat-icon class="lock-icon" [class.locked]="isLocked">
+            {{ isLocked ? 'lock' : 'lock_open' }}
+          </mat-icon>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <app-command-button label="Lock" icon="lock" color="primary"
+          [status]="lockStatus" [loading]="lockStatus === 'loading'"
+          (execute)="lockDoors()"></app-command-button>
+        <app-command-button label="Unlock" icon="lock_open" color="accent"
+          [status]="unlockStatus" [loading]="unlockStatus === 'loading'"
+          (execute)="unlockDoors()"></app-command-button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Location Card -->
+    <mat-card class="info-card location-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>location_on</mat-icon>
+        <mat-card-title>Location</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">Coordinates</span>
+          <span class="value">{{ location }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">At Home</span>
+          <span class="value">{{ getSignal('location-isathome') }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Climate Card -->
+    <mat-card class="info-card climate-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>thermostat</mat-icon>
+        <mat-card-title>Climate</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="temp-display">
+          <div class="temp-item">
+            <mat-icon>wb_sunny</mat-icon>
+            <span class="temp-label">Outside</span>
+            <span class="temp-value">{{ externalTemp }}</span>
+          </div>
+          <div class="temp-item">
+            <mat-icon>weekend</mat-icon>
+            <span class="temp-label">Inside</span>
+            <span class="temp-value">{{ internalTemp }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

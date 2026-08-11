@@ -1,0 +1,108 @@
+<div class="settings-container">
+  <h2><mat-icon>settings</mat-icon> Settings</h2>
+
+  <!-- API Credentials -->
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="blue-avatar">vpn_key</mat-icon>
+      <mat-card-title>API Credentials</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-spinner *ngIf="loading.token" diameter="24"></mat-spinner>
+      <div *ngIf="tokenInfo && !loading.token">
+        <div class="info-row">
+          <span class="label">Token Status</span>
+          <app-status-badge [status]="tokenInfo.hasToken ? 'Active' : 'No Token'" size="small"></app-status-badge>
+        </div>
+        <div class="info-row" *ngIf="tokenInfo.expiresAt">
+          <span class="label">Expires At</span>
+          <span class="value">{{ tokenInfo.expiresAt }}</span>
+        </div>
+        <div class="info-row" *ngIf="tokenInfo.remainingSeconds !== null">
+          <span class="label">Remaining</span>
+          <span class="value">{{ tokenInfo.remainingSeconds }}s</span>
+        </div>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="refreshToken()" [disabled]="loading.token">
+        <mat-icon>refresh</mat-icon> Refresh Token
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Connection Management -->
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="green-avatar">link</mat-icon>
+      <mat-card-title>Connections</mat-card-title>
+      <mat-card-subtitle>{{ connections.length }} connection(s)</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-spinner *ngIf="loading.connections" diameter="32"></mat-spinner>
+      <mat-list *ngIf="!loading.connections && connections.length > 0">
+        <mat-list-item *ngFor="let conn of connections">
+          <mat-icon matListItemIcon>directions_car</mat-icon>
+          <div matListItemTitle>{{ getVehicleLabel(conn) }}</div>
+          <div matListItemLine>
+            <app-status-badge [status]="conn.attributes.vehicle.mode || 'unknown'" size="small"></app-status-badge>
+            <span class="mono">{{ conn.attributes.vehicleId }}</span>
+          </div>
+          <button matListItemMeta mat-icon-button color="warn" (click)="removeConnection(conn.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-list-item>
+      </mat-list>
+      <div *ngIf="!loading.connections && connections.length === 0" class="empty-state">
+        <p>No connections. Go to Connect to add a vehicle.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- User Management -->
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="orange-avatar">people</mat-icon>
+      <mat-card-title>Connected Users</mat-card-title>
+      <mat-card-subtitle>{{ users.length }} user(s)</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-spinner *ngIf="loading.users" diameter="32"></mat-spinner>
+      <mat-list *ngIf="!loading.users && users.length > 0">
+        <mat-list-item *ngFor="let user of users">
+          <mat-icon matListItemIcon>person</mat-icon>
+          <div matListItemTitle class="mono">{{ user.userId }}</div>
+          <div matListItemLine>Connected: {{ user.createdAt }}</div>
+          <button matListItemMeta mat-icon-button color="warn" (click)="removeUser(user.userId)">
+            <mat-icon>person_remove</mat-icon>
+          </button>
+        </mat-list-item>
+      </mat-list>
+      <div *ngIf="!loading.users && users.length === 0" class="empty-state">
+        <p>No connected users.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Application Info -->
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="purple-avatar">apps</mat-icon>
+      <mat-card-title>Applications</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-spinner *ngIf="loading.apps" diameter="32"></mat-spinner>
+      <mat-list *ngIf="!loading.apps && applications.length > 0">
+        <mat-list-item *ngFor="let app of applications">
+          <mat-icon matListItemIcon>apps</mat-icon>
+          <div matListItemTitle>{{ app.attributes.name }}</div>
+          <div matListItemLine>ID: {{ app.id }}</div>
+          <div matListItemLine *ngIf="app.attributes.description">{{ app.attributes.description }}</div>
+        </mat-list-item>
+      </mat-list>
+      <div *ngIf="!loading.apps && applications.length === 0" class="empty-state">
+        <p>No applications found. Check your credentials.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

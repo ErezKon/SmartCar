@@ -1,0 +1,52 @@
+.compat-container {
+  padding: 24px;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+    margin-bottom: 24px;
+  }
+}
+
+mat-card {
+  margin-bottom: 16px;
+}
+
+.green-avatar { background: #4caf50 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
+.blue-avatar { background: #2196f3 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
+.purple-avatar { background: #9c27b0 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 180px;
+  }
+}
+
+.button-row {
+  display: flex;
+  gap: 8px;
+}
+
+.full-width { width: 100%; }
+
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: rgba(0, 0, 0, 0.38);
+}
+
+table {
+  width: 100%;
+}
+
+mat-chip {
+  font-size: 0.75rem;
+}

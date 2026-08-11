@@ -1,0 +1,11 @@
+<mat-card class="signal-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>{{ groupIcon }}</mat-icon>
+    <mat-card-title>{{ code }}</mat-card-title>
+    <mat-card-subtitle>{{ description || group }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="signal-value">{{ formattedValue }}</div>
+    <div class="signal-age">{{ formattedAge }}</div>
+  </mat-card-content>
+</mat-card>

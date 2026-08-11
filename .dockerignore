@@ -1,0 +1,9 @@
+node_modules
+dist
+*.log
+.env
+.angular
+.vscode
+docs
+*.md
+!README.md

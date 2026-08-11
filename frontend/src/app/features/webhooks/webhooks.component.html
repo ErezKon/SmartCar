@@ -1,0 +1,170 @@
+<div class="webhooks-container">
+  <div class="webhooks-header">
+    <h2><mat-icon>webhook</mat-icon> Webhooks & Subscriptions</h2>
+    <button mat-icon-button (click)="refreshAll()"><mat-icon>refresh</mat-icon></button>
+  </div>
+
+  <mat-tab-group>
+    <!-- Webhooks Tab -->
+    <mat-tab label="Webhooks">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="blue-avatar">webhook</mat-icon>
+            <mat-card-title>Configured Webhooks</mat-card-title>
+            <mat-card-subtitle>{{ webhooks.length }} webhook(s)</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-spinner *ngIf="loading.webhooks" diameter="32"></mat-spinner>
+            <div *ngIf="!loading.webhooks && webhooks.length === 0" class="empty-state">
+              <mat-icon>webhook</mat-icon>
+              <p>No webhooks configured.</p>
+            </div>
+            <mat-list *ngIf="webhooks.length > 0">
+              <mat-list-item *ngFor="let wh of webhooks">
+                <mat-icon matListItemIcon>webhook</mat-icon>
+                <div matListItemTitle>{{ wh.id }}</div>
+                <div matListItemLine>{{ wh.attributes.callbackUrl }}</div>
+                <div matListItemLine>Created: {{ wh.attributes.createdAt }}</div>
+              </mat-list-item>
+            </mat-list>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Subscriptions Tab -->
+    <mat-tab label="Subscriptions">
+      <div class="tab-content">
+        <!-- Create Subscription -->
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="green-avatar">add_circle</mat-icon>
+            <mat-card-title>Create Subscription</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Webhook ID</mat-label>
+                <input matInput [(ngModel)]="newWebhookId">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>User ID</mat-label>
+                <input matInput [(ngModel)]="newUserId">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Vehicle ID</mat-label>
+                <input matInput [(ngModel)]="newVehicleId">
+              </mat-form-field>
+            </div>
+            <button mat-raised-button color="primary" (click)="createSubscription()" [disabled]="creating">
+              <mat-spinner *ngIf="creating" diameter="20"></mat-spinner>
+              <mat-icon *ngIf="!creating">add</mat-icon>
+              Create Subscription
+            </button>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Subscription List -->
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="purple-avatar">list</mat-icon>
+            <mat-card-title>Active Subscriptions</mat-card-title>
+            <mat-card-subtitle>{{ subscriptions.length }} subscription(s)</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-spinner *ngIf="loading.subscriptions" diameter="32"></mat-spinner>
+            <table mat-table [dataSource]="subscriptions" *ngIf="!loading.subscriptions && subscriptions.length > 0" class="full-width">
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>ID</th>
+                <td mat-cell *matCellDef="let sub" class="mono">{{ sub.id }}</td>
+              </ng-container>
+              <ng-container matColumnDef="webhookId">
+                <th mat-header-cell *matHeaderCellDef>Webhook</th>
+                <td mat-cell *matCellDef="let sub" class="mono">{{ sub.attributes.webhookId }}</td>
+              </ng-container>
+              <ng-container matColumnDef="userId">
+                <th mat-header-cell *matHeaderCellDef>User</th>
+                <td mat-cell *matCellDef="let sub" class="mono">{{ sub.attributes.userId }}</td>
+              </ng-container>
+              <ng-container matColumnDef="vehicleId">
+                <th mat-header-cell *matHeaderCellDef>Vehicle</th>
+                <td mat-cell *matCellDef="let sub" class="mono">{{ sub.attributes.vehicleId }}</td>
+              </ng-container>
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let sub">
+                  <button mat-icon-button color="warn" (click)="removeSubscription(sub.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="subsDisplayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: subsDisplayedColumns;"></tr>
+            </table>
+            <div *ngIf="!loading.subscriptions && subscriptions.length === 0" class="empty-state">
+              <mat-icon>notifications_off</mat-icon>
+              <p>No active subscriptions.</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Events Tab -->
+    <mat-tab label="Event Log">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="orange-avatar">receipt_long</mat-icon>
+            <mat-card-title>Webhook Events</mat-card-title>
+            <mat-card-subtitle>{{ events.length }} event(s) received</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-spinner *ngIf="loading.events" diameter="32"></mat-spinner>
+            <button mat-button (click)="loadEvents()" *ngIf="!loading.events">
+              <mat-icon>refresh</mat-icon> Refresh
+            </button>
+            <table mat-table [dataSource]="events" *ngIf="!loading.events && events.length > 0" class="full-width">
+              <ng-container matColumnDef="event_type">
+                <th mat-header-cell *matHeaderCellDef>Event Type</th>
+                <td mat-cell *matCellDef="let ev">
+                  <app-status-badge [status]="ev.event_type" size="small"></app-status-badge>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="vehicle_id">
+                <th mat-header-cell *matHeaderCellDef>Vehicle</th>
+                <td mat-cell *matCellDef="let ev" class="mono">{{ ev.vehicle_id || 'N/A' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="received_at">
+                <th mat-header-cell *matHeaderCellDef>Received</th>
+                <td mat-cell *matCellDef="let ev">{{ ev.received_at }}</td>
+              </ng-container>
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let ev">
+                  <button mat-icon-button (click)="viewEventPayload(ev)">
+                    <mat-icon>{{ selectedEvent?.id === ev.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="eventsDisplayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: eventsDisplayedColumns;" [class.selected]="selectedEvent?.id === row.id"></tr>
+            </table>
+
+            <!-- Event Detail -->
+            <div *ngIf="selectedEvent" class="event-detail">
+              <h4>Event Payload</h4>
+              <pre>{{ parsePayload(selectedEvent.payload) }}</pre>
+            </div>
+
+            <div *ngIf="!loading.events && events.length === 0" class="empty-state">
+              <mat-icon>inbox</mat-icon>
+              <p>No webhook events received yet.</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

@@ -1,0 +1,254 @@
+<div class="commands-container">
+  <h2><mat-icon>gamepad</mat-icon> Vehicle Commands</h2>
+
+  <div *ngIf="noVehicle" class="no-vehicle">
+    <mat-icon>info</mat-icon>
+    <p>Select a vehicle to send commands.</p>
+  </div>
+
+  <mat-tab-group>
+    <!-- Charging Tab -->
+    <mat-tab label="Charging">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="green-avatar">bolt</mat-icon>
+            <mat-card-title>Charging Controls</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="button-row">
+              <app-command-button label="Start Charging" icon="play_arrow" color="primary"
+                [status]="getStatus('chargeStart')" [loading]="getStatus('chargeStart') === 'loading'"
+                [disabled]="noVehicle" (execute)="startCharging()"></app-command-button>
+              <app-command-button label="Stop Charging" icon="stop" color="warn"
+                [status]="getStatus('chargeStop')" [loading]="getStatus('chargeStop') === 'loading'"
+                [disabled]="noVehicle" (execute)="stopCharging()"></app-command-button>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="charge-limit-section">
+              <h3>Set Charge Limit</h3>
+              <div class="slider-row">
+                <mat-slider min="0" max="100" step="5" [disabled]="noVehicle">
+                  <input matSliderThumb [(ngModel)]="chargeLimit">
+                </mat-slider>
+                <span class="limit-value">{{ chargeLimit }}%</span>
+              </div>
+              <app-command-button label="Set Limit" icon="battery_charging_full"
+                [status]="getStatus('chargeLimit')" [loading]="getStatus('chargeLimit') === 'loading'"
+                [disabled]="noVehicle" (execute)="setChargeLimit()"></app-command-button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Security Tab -->
+    <mat-tab label="Security">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="orange-avatar">shield</mat-icon>
+            <mat-card-title>Door Locks</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="button-row center">
+              <app-command-button label="Lock Doors" icon="lock" color="primary"
+                [status]="getStatus('lock')" [loading]="getStatus('lock') === 'loading'"
+                [disabled]="noVehicle" (execute)="lockDoors()"></app-command-button>
+              <app-command-button label="Unlock Doors" icon="lock_open" color="accent"
+                [status]="getStatus('unlock')" [loading]="getStatus('unlock') === 'loading'"
+                [disabled]="noVehicle" (execute)="unlockDoors()"></app-command-button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Navigation Tab -->
+    <mat-tab label="Navigation">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="blue-avatar">navigation</mat-icon>
+            <mat-card-title>Set Destination</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Latitude</mat-label>
+                <input matInput type="number" [(ngModel)]="latitude" min="-90" max="90" step="0.0001">
+                <mat-hint>-90 to 90</mat-hint>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Longitude</mat-label>
+                <input matInput type="number" [(ngModel)]="longitude" min="-180" max="180" step="0.0001">
+                <mat-hint>-180 to 180</mat-hint>
+              </mat-form-field>
+            </div>
+            <app-command-button label="Set Destination" icon="send" color="primary"
+              [status]="getStatus('nav')" [loading]="getStatus('nav') === 'loading'"
+              [disabled]="noVehicle" (execute)="setDestination()"></app-command-button>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Schedules Tab -->
+    <mat-tab label="Charge Schedules">
+      <div class="tab-content">
+        <!-- Daily Schedule -->
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="purple-avatar">today</mat-icon>
+            <mat-card-title>Daily Schedule</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Start Time</mat-label>
+                <input matInput type="time" [(ngModel)]="dailyStartTime">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>End Time</mat-label>
+                <input matInput type="time" [(ngModel)]="dailyEndTime">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Target SOC %</mat-label>
+                <input matInput type="number" [(ngModel)]="dailyTargetSoc" min="0" max="100">
+              </mat-form-field>
+            </div>
+            <app-command-button label="Set Daily Schedule" icon="schedule"
+              [status]="getStatus('dailySchedule')" [loading]="getStatus('dailySchedule') === 'loading'"
+              [disabled]="noVehicle" (execute)="setDailySchedule()"></app-command-button>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Weekly Schedule -->
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="purple-avatar">date_range</mat-icon>
+            <mat-card-title>Weekly Schedule</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Day</mat-label>
+                <mat-select [(ngModel)]="weeklyDay">
+                  <mat-option value="monday">Monday</mat-option>
+                  <mat-option value="tuesday">Tuesday</mat-option>
+                  <mat-option value="wednesday">Wednesday</mat-option>
+                  <mat-option value="thursday">Thursday</mat-option>
+                  <mat-option value="friday">Friday</mat-option>
+                  <mat-option value="saturday">Saturday</mat-option>
+                  <mat-option value="sunday">Sunday</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Start Time</mat-label>
+                <input matInput type="time" [(ngModel)]="weeklyStartTime">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>End Time</mat-label>
+                <input matInput type="time" [(ngModel)]="weeklyEndTime">
+              </mat-form-field>
+            </div>
+            <app-command-button label="Set Weekly Schedule" icon="schedule"
+              [status]="getStatus('weeklySchedule')" [loading]="getStatus('weeklySchedule') === 'loading'"
+              [disabled]="noVehicle" (execute)="setWeeklySchedule()"></app-command-button>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Workweek Schedule -->
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="purple-avatar">work</mat-icon>
+            <mat-card-title>Workweek Schedule</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Weekday Start</mat-label>
+                <input matInput type="time" [(ngModel)]="workweekWeekdayStart">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Weekday End</mat-label>
+                <input matInput type="time" [(ngModel)]="workweekWeekdayEnd">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Weekend Start</mat-label>
+                <input matInput type="time" [(ngModel)]="workweekWeekendStart">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Weekend End</mat-label>
+                <input matInput type="time" [(ngModel)]="workweekWeekendEnd">
+              </mat-form-field>
+            </div>
+            <app-command-button label="Set Workweek Schedule" icon="schedule"
+              [status]="getStatus('workweekSchedule')" [loading]="getStatus('workweekSchedule') === 'loading'"
+              [disabled]="noVehicle" (execute)="setWorkweekSchedule()"></app-command-button>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Delete Schedule -->
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="red-avatar">delete</mat-icon>
+            <mat-card-title>Delete Schedule</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Schedule ID</mat-label>
+              <input matInput [(ngModel)]="deleteScheduleId" placeholder="Enter schedule ID to delete">
+            </mat-form-field>
+            <app-command-button label="Delete Schedule" icon="delete" color="warn"
+              [status]="getStatus('deleteSchedule')" [loading]="getStatus('deleteSchedule') === 'loading'"
+              [disabled]="noVehicle || !deleteScheduleId" (execute)="deleteSchedule()"></app-command-button>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- History Tab -->
+    <mat-tab label="History">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="gray-avatar">history</mat-icon>
+            <mat-card-title>Command History</mat-card-title>
+            <mat-card-subtitle>{{ commandLogs.length }} commands recorded</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <table mat-table [dataSource]="commandLogs" *ngIf="commandLogs.length > 0" class="full-width">
+              <ng-container matColumnDef="command_type">
+                <th mat-header-cell *matHeaderCellDef>Command</th>
+                <td mat-cell *matCellDef="let log">{{ log.command_type }}</td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let log">
+                  <app-status-badge [status]="log.status" size="small"></app-status-badge>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="duration_ms">
+                <th mat-header-cell *matHeaderCellDef>Duration</th>
+                <td mat-cell *matCellDef="let log">{{ log.duration_ms ? log.duration_ms + 'ms' : 'N/A' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="created_at">
+                <th mat-header-cell *matHeaderCellDef>Time</th>
+                <td mat-cell *matCellDef="let log">{{ log.created_at }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            <div *ngIf="commandLogs.length === 0" class="empty-state">
+              <mat-icon>history</mat-icon>
+              <p>No commands executed yet.</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

@@ -1,0 +1,63 @@
+<div class="signals-container">
+  <div class="signals-header">
+    <h2><mat-icon>sensors</mat-icon> Signal Explorer</h2>
+    <div class="header-actions">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search signals</mat-label>
+        <input matInput [(ngModel)]="searchFilter" placeholder="Filter by name, code, or group">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="fetchAllSignals()"
+              [disabled]="loading || !vehicleId || !userId">
+        <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+        <mat-icon *ngIf="!loading">download</mat-icon>
+        Fetch All Signals
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!vehicleId || !userId" class="no-vehicle">
+    <mat-icon>info</mat-icon>
+    <p>Select a vehicle to fetch signal values. You can still browse the signal catalog below.</p>
+  </div>
+
+  <div class="stats-bar" *ngIf="!catalogLoading">
+    <span>{{ totalSignals }} signals in {{ groupNames.length }} groups</span>
+    <span *ngIf="signalValues.size > 0">{{ signalValues.size }} values loaded</span>
+  </div>
+
+  <div *ngIf="catalogLoading" class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading signal catalog...</p>
+  </div>
+
+  <mat-accordion multi *ngIf="!catalogLoading">
+    <mat-expansion-panel *ngFor="let group of filteredGroups()">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ group }}
+        </mat-panel-title>
+        <mat-panel-description>
+          {{ getGroupSignalCount(group) }} signals
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="signals-grid">
+        <div *ngFor="let signal of filteredSignals(group)" class="signal-item">
+          <app-signal-card
+            [code]="signal.code"
+            [value]="getSignalValue(signal.code)"
+            [dataAge]="getSignalAge(signal.code)"
+            [description]="signal.description"
+            [group]="signal.group">
+          </app-signal-card>
+          <button mat-icon-button (click)="fetchSignal(signal.code)"
+                  [disabled]="!vehicleId || !userId" class="refresh-btn"
+                  matTooltip="Refresh this signal">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

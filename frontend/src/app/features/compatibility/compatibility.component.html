@@ -1,0 +1,143 @@
+<div class="compat-container">
+  <h2><mat-icon>verified</mat-icon> Vehicle Compatibility</h2>
+
+  <!-- MG Compatibility -->
+  <mat-card class="mg-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="green-avatar">directions_car</mat-icon>
+      <mat-card-title>MG BEV Compatibility</mat-card-title>
+      <mat-card-subtitle>Pre-loaded compatibility data for MG electric vehicles</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-spinner *ngIf="mgLoading" diameter="32"></mat-spinner>
+      <table mat-table [dataSource]="mgVehicles" *ngIf="!mgLoading && mgVehicles.length > 0" class="full-width">
+        <ng-container matColumnDef="make">
+          <th mat-header-cell *matHeaderCellDef>Make</th>
+          <td mat-cell *matCellDef="let v">{{ v.attributes.make }}</td>
+        </ng-container>
+        <ng-container matColumnDef="model">
+          <th mat-header-cell *matHeaderCellDef>Model</th>
+          <td mat-cell *matCellDef="let v">{{ v.attributes.model }}</td>
+        </ng-container>
+        <ng-container matColumnDef="year">
+          <th mat-header-cell *matHeaderCellDef>Year</th>
+          <td mat-cell *matCellDef="let v">{{ v.attributes.year }}</td>
+        </ng-container>
+        <ng-container matColumnDef="powertrainType">
+          <th mat-header-cell *matHeaderCellDef>Powertrain</th>
+          <td mat-cell *matCellDef="let v">{{ v.attributes.powertrainType }}</td>
+        </ng-container>
+        <ng-container matColumnDef="capabilities">
+          <th mat-header-cell *matHeaderCellDef>Capabilities</th>
+          <td mat-cell *matCellDef="let v">
+            <mat-chip-set>
+              <mat-chip *ngFor="let cap of v.attributes.capabilities?.slice(0, 5)">{{ cap }}</mat-chip>
+              <mat-chip *ngIf="v.attributes.capabilities?.length > 5">+{{ v.attributes.capabilities.length - 5 }} more</mat-chip>
+            </mat-chip-set>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+      <div *ngIf="!mgLoading && mgVehicles.length === 0" class="empty-state">
+        <p>No MG BEV compatibility data available.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Search -->
+  <mat-card class="search-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="blue-avatar">search</mat-icon>
+      <mat-card-title>Search Compatible Vehicles</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Region</mat-label>
+          <mat-select [(ngModel)]="region">
+            <mat-option value="">Any</mat-option>
+            <mat-option value="US">US</mat-option>
+            <mat-option value="CA">Canada</mat-option>
+            <mat-option value="EUROPE">Europe</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Make</mat-label>
+          <mat-select [(ngModel)]="make">
+            <mat-option value="">Any</mat-option>
+            <mat-option value="MG">MG</mat-option>
+            <mat-option value="TESLA">Tesla</mat-option>
+            <mat-option value="BMW">BMW</mat-option>
+            <mat-option value="FORD">Ford</mat-option>
+            <mat-option value="VOLKSWAGEN">Volkswagen</mat-option>
+            <mat-option value="HYUNDAI">Hyundai</mat-option>
+            <mat-option value="KIA">Kia</mat-option>
+            <mat-option value="NISSAN">Nissan</mat-option>
+            <mat-option value="CHEVROLET">Chevrolet</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Powertrain</mat-label>
+          <mat-select [(ngModel)]="powertrainType">
+            <mat-option value="">Any</mat-option>
+            <mat-option value="BEV">BEV (Battery Electric)</mat-option>
+            <mat-option value="PHEV">PHEV (Plug-in Hybrid)</mat-option>
+            <mat-option value="ICE">ICE (Internal Combustion)</mat-option>
+            <mat-option value="EV">EV (Electric)</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="button-row">
+        <button mat-raised-button color="primary" (click)="search()" [disabled]="loading">
+          <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+          <mat-icon *ngIf="!loading">search</mat-icon>
+          Search
+        </button>
+        <button mat-button (click)="clearFilters()">
+          <mat-icon>clear</mat-icon> Clear
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Search Results -->
+  <mat-card *ngIf="vehicles.length > 0" class="results-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="purple-avatar">list</mat-icon>
+      <mat-card-title>Search Results</mat-card-title>
+      <mat-card-subtitle>{{ vehicles.length }} vehicle(s) found</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="vehicles" class="full-width">
+        <ng-container matColumnDef="make">
+          <th mat-header-cell *matHeaderCellDef>Make</th>
+          <td mat-cell *matCellDef="let v">{{ v.attributes.make }}</td>
+        </ng-container>
+        <ng-container matColumnDef="model">
+          <th mat-header-cell *matHeaderCellDef>Model</th>
+          <td mat-cell *matCellDef="let v">{{ v.attributes.model }}</td>
+        </ng-container>
+        <ng-container matColumnDef="year">
+          <th mat-header-cell *matHeaderCellDef>Year</th>
+          <td mat-cell *matCellDef="let v">{{ v.attributes.year }}</td>
+        </ng-container>
+        <ng-container matColumnDef="powertrainType">
+          <th mat-header-cell *matHeaderCellDef>Powertrain</th>
+          <td mat-cell *matCellDef="let v">{{ v.attributes.powertrainType }}</td>
+        </ng-container>
+        <ng-container matColumnDef="capabilities">
+          <th mat-header-cell *matHeaderCellDef>Capabilities</th>
+          <td mat-cell *matCellDef="let v">
+            <mat-chip-set>
+              <mat-chip *ngFor="let cap of v.attributes.capabilities?.slice(0, 5)">{{ cap }}</mat-chip>
+              <mat-chip *ngIf="v.attributes.capabilities?.length > 5">+{{ v.attributes.capabilities.length - 5 }} more</mat-chip>
+            </mat-chip-set>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>
