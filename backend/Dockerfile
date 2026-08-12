@@ -7,7 +7,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files and install dependencies
-COPY package.json package-lock.json ./
+COPY .npmrc package.json package-lock.json ./
 RUN npm ci
 
 # Copy source code and build
@@ -24,7 +24,7 @@ WORKDIR /app
 RUN mkdir -p /app/data /app/logs
 
 # Copy package files and install production dependencies only
-COPY package.json package-lock.json ./
+COPY .npmrc package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Copy compiled output from builder

@@ -12,17 +12,11 @@ services:
     volumes:
       - backend-data:/app/data
       - backend-logs:/app/logs
+    env_file:
+      - ./backend/.env
     environment:
       - NODE_ENV=production
-      - PORT=3000
       - DATABASE_PATH=/app/data/smartcar.db
-      - SMARTCAR_CLIENT_ID=${SMARTCAR_CLIENT_ID}
-      - SMARTCAR_CLIENT_SECRET=${SMARTCAR_CLIENT_SECRET}
-      - SMARTCAR_REDIRECT_URI=${SMARTCAR_REDIRECT_URI:-http://localhost:3000/auth/callback}
-      - SMARTCAR_CONNECT_MODE=${SMARTCAR_CONNECT_MODE:-simulated}
-      - SMARTCAR_APP_MANAGEMENT_TOKEN=${SMARTCAR_APP_MANAGEMENT_TOKEN}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:4200}
-      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
       interval: 30s
