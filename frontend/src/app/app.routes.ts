@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'saic/dashboard', pathMatch: 'full' },
   {
     path: 'dashboard',
     loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
@@ -38,5 +38,5 @@ export const routes: Routes = [
     path: 'saic/dashboard',
     loadComponent: () => import('./features/saic/saic-dashboard.component').then(m => m.SaicDashboardComponent)
   },
-  { path: '**', redirectTo: 'dashboard' }
+  { path: '**', redirectTo: 'saic/dashboard' }
 ];

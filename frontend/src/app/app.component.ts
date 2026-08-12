@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,8 +33,11 @@ interface NavItem {
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit, OnDestroy {
+  @ViewChild('sidenav') sidenav!: MatSidenav;
+
   title = 'Smartcar';
   activeProvider: ProviderType = 'smartcar';
+  isMobile = false;
   private subs: Subscription[] = [];
 
   allNavItems: NavItem[] = [
@@ -56,7 +60,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private auth: AuthService,
-    private providerService: ProviderService
+    private providerService: ProviderService,
+    private breakpointObserver: BreakpointObserver
   ) {}
 
   ngOnInit(): void {
@@ -64,6 +69,16 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subs.push(
       this.providerService.activeProvider$.subscribe(p => {
         this.activeProvider = p;
+      }),
+      this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
+        this.isMobile = result.matches;
+        if (this.sidenav) {
+          if (this.isMobile) {
+            this.sidenav.close();
+          } else {
+            this.sidenav.open();
+          }
+        }
       })
     );
   }
@@ -74,5 +89,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onProviderChange(provider: ProviderType): void {
     this.providerService.setProvider(provider);
+  }
+
+  onNavClick(): void {
+    if (this.isMobile) {
+      this.sidenav.close();
+    }
   }
 }
