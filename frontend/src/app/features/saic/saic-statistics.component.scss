@@ -1,0 +1,262 @@
+.statistics-container {
+  padding: 24px;
+}
+
+.statistics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.vehicle-select {
+  min-width: 200px;
+}
+
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+  color: rgba(0, 0, 0, 0.54);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.statistics-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Summary cards
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  gap: 16px;
+}
+
+.summary-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    color: white;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.sessions-icon { background: #3f51b5; }
+.energy-icon { background: #4caf50; }
+.distance-icon { background: #2196f3; }
+.efficiency-icon { background: #ff9800; }
+.best-icon { background: #009688; }
+.worst-icon { background: #f44336; }
+
+.summary-data {
+  display: flex;
+  flex-direction: column;
+
+  .summary-value {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .summary-label {
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.54);
+  }
+}
+
+// Trend card
+.trend-card {
+  mat-icon[mat-card-avatar] {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    color: white;
+    background: #673ab7;
+  }
+}
+
+.trend-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 180px;
+  padding: 16px 0;
+  overflow-x: auto;
+}
+
+.trend-bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 48px;
+  flex: 1;
+}
+
+.trend-bar-wrapper {
+  display: flex;
+  align-items: flex-end;
+  height: 150px;
+  width: 100%;
+}
+
+.trend-bar {
+  width: 100%;
+  min-height: 20px;
+  background: #7986cb;
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  cursor: default;
+  transition: height 0.3s ease;
+
+  &.best { background: #4caf50; }
+  &.worst { background: #f44336; }
+}
+
+.trend-bar-value {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: white;
+  padding-top: 4px;
+}
+
+.trend-bar-label {
+  font-size: 0.7rem;
+  color: rgba(0, 0, 0, 0.54);
+  white-space: nowrap;
+}
+
+// Sessions card
+.sessions-card {
+  mat-icon[mat-card-avatar] {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    color: white;
+    background: #795548;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: rgba(0, 0, 0, 0.38);
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    margin: 4px 0;
+  }
+
+  .hint {
+    font-size: 0.85rem;
+  }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.sessions-table {
+  width: 100%;
+}
+
+.date-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .date-primary {
+    font-weight: 500;
+  }
+}
+
+.status-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  width: fit-content;
+
+  &.active {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &.completed {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+}
+
+.arrow-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  color: rgba(0, 0, 0, 0.38);
+  margin: 0 2px;
+}
+
+.efficiency-value {
+  font-weight: 500;
+
+  &.good { color: #2e7d32; }
+  &.ok { color: #f57f17; }
+  &.poor { color: #c62828; }
+}

@@ -23,6 +23,7 @@ All endpoints return JSON responses. Errors follow the format:
 - [Webhooks](#webhooks)
 - [Compatibility](#compatibility)
 - [Management](#management)
+- [SAIC Charging Sessions](#saic-charging-sessions)
 
 ---
 
@@ -1259,6 +1260,251 @@ curl http://localhost:3000/api/management/applications/app-abc/secrets
 
 ---
 
+## SAIC Charging Sessions
+
+These endpoints manage charging session tracking for SAIC vehicles. Sessions record SOC, odometer, and energy data at charge start/stop, then calculate driving efficiency (kWh/100km) between charges.
+
+### POST /api/saic/vehicles/:vin/charging-sessions/start
+
+Log the start of a charging session. Live-fetches current SOC and odometer from the vehicle. Only one active session per VIN is allowed.
+
+**Authentication:** SAIC token required
+
+**Rate Limiting:** refreshLimiter (6/5min)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `vin` | string | The vehicle VIN. |
+
+**Request Body:** None
+
+**Response (201):**
+
+```json
+{
+  "data": {
+    "id": 1,
+    "vin": "LSJW12345AB000001",
+    "status": "charging",
+    "start_time": "2026-08-13T10:00:00.000Z",
+    "end_time": null,
+    "start_soc_pct": 25.5,
+    "end_soc_pct": null,
+    "start_battery_kwh": 19.635,
+    "end_battery_kwh": null,
+    "energy_added_kwh": null,
+    "start_odometer_km": 1523.4,
+    "end_odometer_km": null,
+    "distance_since_last_charge_km": null,
+    "energy_used_since_last_charge_kwh": null,
+    "efficiency_kwh_per_100km": null,
+    "created_at": "2026-08-13T10:00:00.000Z"
+  }
+}
+```
+
+**Error Response (409 - active session exists):**
+
+```json
+{
+  "error": "Active session already exists for this VIN"
+}
+```
+
+**Example:**
+
+```bash
+curl -X POST http://localhost:3000/api/saic/vehicles/LSJW12345AB000001/charging-sessions/start
+```
+
+---
+
+### POST /api/saic/vehicles/:vin/charging-sessions/stop
+
+Log the end of a charging session. Live-fetches current SOC and odometer, calculates energy added, distance driven since last charge, and efficiency (kWh/100km).
+
+**Authentication:** SAIC token required
+
+**Rate Limiting:** refreshLimiter (6/5min)
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `vin` | string | The vehicle VIN. |
+
+**Request Body:** None
+
+**Response (200):**
+
+```json
+{
+  "data": {
+    "id": 1,
+    "vin": "LSJW12345AB000001",
+    "status": "completed",
+    "start_time": "2026-08-13T10:00:00.000Z",
+    "end_time": "2026-08-13T12:30:00.000Z",
+    "start_soc_pct": 25.5,
+    "end_soc_pct": 80.0,
+    "start_battery_kwh": 19.635,
+    "end_battery_kwh": 61.6,
+    "energy_added_kwh": 41.965,
+    "start_odometer_km": 1523.4,
+    "end_odometer_km": 1523.4,
+    "distance_since_last_charge_km": 123.4,
+    "energy_used_since_last_charge_kwh": 22.33,
+    "efficiency_kwh_per_100km": 18.1,
+    "created_at": "2026-08-13T10:00:00.000Z"
+  }
+}
+```
+
+**Error Response (404 - no active session):**
+
+```json
+{
+  "error": "No active charging session for this VIN"
+}
+```
+
+**Example:**
+
+```bash
+curl -X POST http://localhost:3000/api/saic/vehicles/LSJW12345AB000001/charging-sessions/stop
+```
+
+---
+
+### GET /api/saic/vehicles/:vin/charging-sessions
+
+List all charging sessions for a vehicle, ordered by start time (newest first). Supports pagination.
+
+**Authentication:** None
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `vin` | string | The vehicle VIN. |
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `limit` | integer | No | Maximum number of sessions. Defaults to `50`. |
+| `offset` | integer | No | Number of sessions to skip. Defaults to `0`. |
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": 2,
+      "vin": "LSJW12345AB000001",
+      "status": "completed",
+      "start_time": "2026-08-13T10:00:00.000Z",
+      "end_time": "2026-08-13T12:30:00.000Z",
+      "start_soc_pct": 25.5,
+      "end_soc_pct": 80.0,
+      "start_battery_kwh": 19.635,
+      "end_battery_kwh": 61.6,
+      "energy_added_kwh": 41.965,
+      "start_odometer_km": 1523.4,
+      "end_odometer_km": 1523.4,
+      "distance_since_last_charge_km": 123.4,
+      "energy_used_since_last_charge_kwh": 22.33,
+      "efficiency_kwh_per_100km": 18.1,
+      "created_at": "2026-08-13T10:00:00.000Z"
+    }
+  ],
+  "hasActiveSession": false
+}
+```
+
+**Example:**
+
+```bash
+curl "http://localhost:3000/api/saic/vehicles/LSJW12345AB000001/charging-sessions?limit=20"
+```
+
+---
+
+### GET /api/saic/vehicles/:vin/charging-sessions/stats
+
+Get aggregate charging statistics for a vehicle across all completed sessions.
+
+**Authentication:** None
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `vin` | string | The vehicle VIN. |
+
+**Response:**
+
+```json
+{
+  "data": {
+    "total_sessions": 15,
+    "total_energy_added_kwh": 487.5,
+    "total_distance_tracked_km": 2340.8,
+    "average_efficiency_kwh_per_100km": 17.2,
+    "best_efficiency_kwh_per_100km": 14.8,
+    "worst_efficiency_kwh_per_100km": 22.1
+  }
+}
+```
+
+**Example:**
+
+```bash
+curl http://localhost:3000/api/saic/vehicles/LSJW12345AB000001/charging-sessions/stats
+```
+
+---
+
+### DELETE /api/saic/vehicles/:vin/charging-sessions/:id
+
+Delete a charging session by ID.
+
+**Authentication:** None
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `vin` | string | The vehicle VIN. |
+| `id` | integer | The session ID. |
+
+**Response:**
+
+```json
+{
+  "status": "deleted"
+}
+```
+
+**Error Response (404):**
+
+```json
+{
+  "error": "Session not found"
+}
+```
+
+**Example:**
+
+```bash
+curl -X DELETE http://localhost:3000/api/saic/vehicles/LSJW12345AB000001/charging-sessions/1
+```
+
+---
+
 ## Quick Reference
 
 | Method | Path | Auth | User ID | Description |
@@ -1314,3 +1560,8 @@ curl http://localhost:3000/api/management/applications/app-abc/secrets
 | GET | `/api/saic/messages` | SAIC token | No | Alarm/command/news messages |
 | POST | `/api/saic/vehicles/:vin/commands/:command` | SAIC token | No | Execute SAIC command (rate-limited: 10/min) |
 | GET | `/api/saic/vehicles/:vin/commands` | No | No | SAIC command history (SQLite) |
+| POST | `/api/saic/vehicles/:vin/charging-sessions/start` | SAIC token | No | Log charging session start (rate-limited) |
+| POST | `/api/saic/vehicles/:vin/charging-sessions/stop` | SAIC token | No | Log charging session stop (rate-limited) |
+| GET | `/api/saic/vehicles/:vin/charging-sessions` | No | No | List charging sessions |
+| GET | `/api/saic/vehicles/:vin/charging-sessions/stats` | No | No | Charging session statistics |
+| DELETE | `/api/saic/vehicles/:vin/charging-sessions/:id` | No | No | Delete a charging session |

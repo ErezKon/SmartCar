@@ -179,5 +179,31 @@ export function runMigrations(db: SqlJsDatabase): void {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS saic_charging_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      vin TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'charging',
+      start_time TEXT NOT NULL DEFAULT (datetime('now')),
+      end_time TEXT,
+      start_soc_pct REAL NOT NULL,
+      end_soc_pct REAL,
+      start_battery_kwh REAL NOT NULL,
+      end_battery_kwh REAL,
+      energy_added_kwh REAL,
+      start_odometer_km REAL NOT NULL,
+      end_odometer_km REAL,
+      distance_since_last_charge_km REAL,
+      energy_used_since_last_charge_kwh REAL,
+      efficiency_kwh_per_100km REAL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  db.run(`
+    CREATE INDEX IF NOT EXISTS idx_saic_charging_sessions_vin
+    ON saic_charging_sessions(vin, start_time)
+  `);
+
   logger.info('Database migrations completed');
 }

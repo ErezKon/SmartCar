@@ -144,6 +144,22 @@
           [status]="chargeStopStatus" [loading]="chargeStopStatus === 'loading'"
           (execute)="stopCharging()"></app-command-button>
       </mat-card-actions>
+      <mat-divider></mat-divider>
+      <mat-card-content class="session-logging">
+        <span class="section-label">Session Logging</span>
+        <div class="session-logging-actions">
+          <app-command-button label="Log Charge Start" icon="play_arrow" color="primary"
+            [status]="logChargeStartStatus" [loading]="logChargeStartStatus === 'loading'"
+            [disabled]="hasActiveChargingSession || logChargeStartStatus === 'loading'"
+            (execute)="logChargeStart()"
+            matTooltip="Record the start of a charging session for statistics tracking"></app-command-button>
+          <app-command-button label="Log Charge Stop" icon="stop_circle" color="accent"
+            [status]="logChargeStopStatus" [loading]="logChargeStopStatus === 'loading'"
+            [disabled]="!hasActiveChargingSession || logChargeStopStatus === 'loading'"
+            (execute)="logChargeStop()"
+            matTooltip="Record the end of a charging session and calculate efficiency"></app-command-button>
+        </div>
+      </mat-card-content>
     </mat-card>
 
     <!-- Security Card -->

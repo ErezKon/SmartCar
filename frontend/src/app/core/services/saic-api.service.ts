@@ -6,7 +6,7 @@ import {
   SaicVehicleStatusResp, SaicChrgMgmtDataResp,
   SaicNormalizedSignal, SaicMessage, SaicUnreadMessageCount,
   SaicCommandResult, SaicCommandLogEntry, SaicStateSnapshot,
-  SaicSettings,
+  SaicSettings, SaicChargingSession, SaicChargingStats,
 } from '../models/saic.models';
 
 @Injectable({ providedIn: 'root' })
@@ -86,5 +86,29 @@ export class SaicApiService {
 
   getUnreadMessageCount(): Observable<{ data: SaicUnreadMessageCount }> {
     return this.http.get<{ data: SaicUnreadMessageCount }>('/api/saic/messages/unreadCount');
+  }
+
+  // Charging Sessions
+  startChargingSession(vin: string): Observable<{ data: SaicChargingSession }> {
+    return this.http.post<{ data: SaicChargingSession }>(`/api/saic/vehicles/${vin}/charging-sessions/start`, {});
+  }
+
+  stopChargingSession(vin: string): Observable<{ data: SaicChargingSession }> {
+    return this.http.post<{ data: SaicChargingSession }>(`/api/saic/vehicles/${vin}/charging-sessions/stop`, {});
+  }
+
+  getChargingSessions(vin: string, limit?: number, offset?: number): Observable<{ data: SaicChargingSession[]; hasActiveSession: boolean }> {
+    let params = new HttpParams();
+    if (limit) params = params.set('limit', limit.toString());
+    if (offset) params = params.set('offset', offset.toString());
+    return this.http.get<{ data: SaicChargingSession[]; hasActiveSession: boolean }>(`/api/saic/vehicles/${vin}/charging-sessions`, { params });
+  }
+
+  getChargingStats(vin: string): Observable<{ data: SaicChargingStats }> {
+    return this.http.get<{ data: SaicChargingStats }>(`/api/saic/vehicles/${vin}/charging-sessions/stats`);
+  }
+
+  deleteChargingSession(vin: string, id: number): Observable<{ status: string }> {
+    return this.http.delete<{ status: string }>(`/api/saic/vehicles/${vin}/charging-sessions/${id}`);
   }
 }

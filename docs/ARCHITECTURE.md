@@ -129,7 +129,7 @@ Express route modules map HTTP endpoints to business logic:
 | `webhooks`        | `/api/webhooks`     | Register, list, delete webhooks; receive events  |
 | `compatibility`   | `/api/compatibility`| VIN compatibility checks                         |
 | `management`      | `/api/management`   | Application-level management operations          |
-| `saic`            | `/api/saic`         | SAIC iSmart: account, vehicles, status, commands, messages |
+| `saic`            | `/api/saic`         | SAIC iSmart: account, vehicles, status, commands, messages, charging sessions |
 
 ### 4.6 SAIC Module
 
@@ -183,6 +183,7 @@ Four reusable components are shared across feature pages:
 | Commands        | `/commands`        | Lists available remote commands with execution buttons. Shows command history from the log. |
 | Webhooks        | `/webhooks`        | Webhook configuration panel. Register/unregister webhooks, view received event history. |
 | Compatibility   | `/compatibility`   | VIN lookup tool. Enter a VIN to check Smartcar compatibility and supported features. |
+| Statistics      | `/saic/statistics`  | Charging session statistics: summary cards (totals, averages), per-session table, efficiency trend visualization. |
 | Settings        | `/settings`        | Application configuration: credentials status, database info, ngrok tunnel status, environment details. |
 
 ### 5.4 Routing
@@ -284,11 +285,36 @@ Smartcar                    ngrok                       Backend
    |<-- 200 OK ----------------|                           |
 ```
 
+### 6.6 Charging Session Tracking
+
+```
+Frontend / Alarm Poller           Backend                     SAIC API
+   |                                |                           |
+   |-- POST /charging-sessions/ --->|                           |
+   |     start                      |-- GET vehicle status ---->|
+   |                                |<-- SOC + odometer --------|
+   |                                |-- INSERT session (status='charging')
+   |<-- Session created ------------|                           |
+   |                                |                           |
+   |-- POST /charging-sessions/ --->|                           |
+   |     stop                       |-- GET vehicle status ---->|
+   |                                |<-- SOC + odometer --------|
+   |                                |-- Calculate energy added, distance,
+   |                                |   efficiency (kWh/100km)
+   |                                |-- UPDATE session (status='completed')
+   |<-- Session completed ----------|                           |
+   |                                |                           |
+   |-- GET /charging-sessions/ ---->|                           |
+   |     stats                      |-- Aggregate query on      |
+   |                                |   completed sessions      |
+   |<-- Statistics response --------|                           |
+```
+
 ---
 
 ## 7. Database Schema
 
-The SQLite database contains thirteen tables — seven for Smartcar and six for SAIC:
+The SQLite database contains fourteen tables — seven for Smartcar and seven for SAIC:
 
 **Smartcar tables:**
 
@@ -312,6 +338,7 @@ The SQLite database contains thirteen tables — seven for Smartcar and six for 
 | `saic_state_snapshots` | Caches vehicle state fields (SOC, range, temperature, lock status, etc.) with timestamps. Indexed on (vin, field). |
 | `saic_command_logs`    | Records every command sent via the SAIC API with event ID, status, duration, and payloads. Indexed on (vin, created_at). |
 | `saic_messages`        | Stores alarm/command/news messages from the SAIC API with unique message IDs.            |
+| `saic_charging_sessions` | Tracks charging sessions with start/end SOC, odometer, energy added, distance driven since last charge, and calculated efficiency (kWh/100km). Indexed on (vin, start_time). |
 
 All tables include standard `created_at` and `updated_at` timestamp columns managed at the repository level.
 
