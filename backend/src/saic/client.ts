@@ -11,7 +11,7 @@ import {
   RequestEncryptionParams, computeVerificationString,
 } from './crypto';
 import {
-  SaicApiError, SaicAuthError, SaicRetryException, SaicVehicleAsleepError,
+  SaicApiError, SaicAuthError, SaicCommandUnconfirmedError, SaicRetryException, SaicVehicleAsleepError,
 } from './errors';
 import { sleep, redactSensitive } from '../utils/helpers';
 import { logger } from '../utils/logger';
@@ -217,6 +217,17 @@ export class SaicClient {
     return parsed;
   }
 
+  // Known SAIC API error messages that indicate the command may have been
+  // dispatched to the vehicle even though the API reported failure.
+  private static COMMAND_UNCONFIRMED_PATTERNS = [
+    'remote control instruction failed',
+  ];
+
+  private static isCommandPossiblySucceeded(message: string): boolean {
+    const lower = message.toLowerCase();
+    return SaicClient.COMMAND_UNCONFIRMED_PATTERNS.some(p => lower.includes(p));
+  }
+
   /**
    * Event-ID polling loop for async endpoints (vehicle status, commands, etc.).
    * Sends initial request with event-id: 0, then polls until data arrives or timeout.
@@ -229,6 +240,7 @@ export class SaicClient {
     const startTime = Date.now();
 
     let eventId = '0';
+    let commandDispatched = false;
 
     while (true) {
       try {
@@ -245,8 +257,15 @@ export class SaicClient {
       } catch (error) {
         if (error instanceof SaicRetryException) {
           eventId = error.eventId;
+          commandDispatched = true;
 
           if (Date.now() - startTime > timeout) {
+            if (options.commandMode) {
+              // Command was dispatched but vehicle didn't confirm in time
+              throw new SaicCommandUnconfirmedError(
+                'Vehicle did not confirm the command within the polling timeout'
+              );
+            }
             throw new SaicVehicleAsleepError(
               'Vehicle did not respond within the polling timeout'
             );
@@ -255,6 +274,23 @@ export class SaicClient {
           await sleep(pollInterval);
           continue;
         }
+
+        // For command mode, if the command was dispatched (event-id progressed)
+        // or the error matches known "possibly succeeded" patterns, treat as
+        // unconfirmed rather than failed. The SAIC API sometimes reports failure
+        // even when the car executes the command successfully.
+        if (
+          options.commandMode &&
+          error instanceof SaicApiError &&
+          !(error instanceof SaicAuthError) &&
+          (commandDispatched || SaicClient.isCommandPossiblySucceeded(error.message))
+        ) {
+          logger.warn(
+            `SAIC command may have succeeded despite API error (dispatched=${commandDispatched}): ${error.message}`
+          );
+          throw new SaicCommandUnconfirmedError(error.message);
+        }
+
         throw error;
       }
     }

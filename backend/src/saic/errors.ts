@@ -31,6 +31,13 @@ export class SaicPinRequiredError extends SaicApiError {
   }
 }
 
+export class SaicCommandUnconfirmedError extends SaicApiError {
+  constructor(message = 'Command was sent but confirmation was not received') {
+    super(message, 202, undefined);
+    this.name = 'SaicCommandUnconfirmedError';
+  }
+}
+
 export class SaicRetryException extends Error {
   constructor(
     message: string,

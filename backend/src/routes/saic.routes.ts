@@ -15,6 +15,7 @@ import {
   setChargingSchedule, setBatteryHeatingSchedule,
   setAlarmSwitches, getUnreadMessageCount,
 } from '../saic/commands';
+import { SaicCommandUnconfirmedError } from '../saic/errors';
 import type { ClimateMode } from '../saic/commands';
 import type { ChargingScheduleMode, BatteryHeatingScheduleMode, AlarmSwitch } from '../saic/types';
 import { normalizeVehicleStatus, normalizeChargingData } from '../saic/normalize';
@@ -461,10 +462,10 @@ const commandHandlers: Record<string, (vin: string, body: Record<string, unknown
 
 // POST /api/saic/vehicles/:vin/commands/:command - Execute a command
 saicRouter.post('/vehicles/:vin/commands/:command', commandLimiter, async (req: Request, res: Response) => {
-  try {
-    const vin = req.params.vin as string;
-    const command = req.params.command as string;
+  const vin = req.params.vin as string;
+  const command = req.params.command as string;
 
+  try {
     const handler = commandHandlers[command];
     if (!handler) {
       res.status(400).json({
@@ -480,6 +481,19 @@ saicRouter.post('/vehicles/:vin/commands/:command', commandLimiter, async (req: 
     res.status(200).json({ data: result, command, vin });
   } catch (error) {
     const err = error as Error & { statusCode?: number };
+
+    // Command was sent but confirmation wasn't received — return 202
+    // so the frontend can show a warning instead of an error.
+    if (error instanceof SaicCommandUnconfirmedError) {
+      res.status(202).json({
+        data: { status: 'UNCONFIRMED' },
+        command,
+        vin,
+        warning: 'Command was sent but the vehicle did not confirm execution. It may still have been applied.',
+      });
+      return;
+    }
+
     logger.error(`SAIC command error: ${err.message}`);
 
     if (err.name === 'SaicVehicleAsleepError') {

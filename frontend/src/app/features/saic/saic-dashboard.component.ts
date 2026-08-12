@@ -377,14 +377,21 @@ export class SaicDashboardComponent implements OnInit, OnDestroy {
 
     this.subs.push(
       this.saicApi.executeCommand(this.selectedVin, cmdName, body).subscribe({
-        next: () => {
-          (this as Record<string, unknown>)[statusProp as string] = 'success';
-          this.snackBar.open(successMsg || `${cmdName} succeeded`, 'OK', { duration: 3000 });
+        next: (res) => {
+          if (res.data?.status === 'UNCONFIRMED' || (res as Record<string, unknown>)['warning']) {
+            (this as Record<string, unknown>)[statusProp as string] = 'success';
+            const warning = (res as Record<string, unknown>)['warning'] as string
+              || 'Command sent but not confirmed — it may still have been applied.';
+            this.snackBar.open(warning, 'OK', { duration: 5000, panelClass: 'snackbar-warning' });
+          } else {
+            (this as Record<string, unknown>)[statusProp as string] = 'success';
+            this.snackBar.open(successMsg || `${cmdName} succeeded`, 'OK', { duration: 3000 });
+          }
           setTimeout(() => { (this as Record<string, unknown>)[statusProp as string] = 'idle'; }, 3000);
         },
         error: err => {
           (this as Record<string, unknown>)[statusProp as string] = 'error';
-          this.snackBar.open(err.error?.message || `${cmdName} failed`, 'OK', { duration: 4000 });
+          this.snackBar.open(err.error?.message || err.message || `${cmdName} failed`, 'OK', { duration: 4000 });
           setTimeout(() => { (this as Record<string, unknown>)[statusProp as string] = 'idle'; }, 3000);
         }
       })

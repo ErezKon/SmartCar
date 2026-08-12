@@ -1,5 +1,6 @@
 import { SaicClient, hashVin } from './client';
 import { getSaicToken } from './auth';
+import { SaicCommandUnconfirmedError } from './errors';
 import { getDatabase } from '../db/database';
 import { SaicRepository } from '../db/repositories/saic.repository';
 import { logger } from '../utils/logger';
@@ -113,6 +114,19 @@ async function executeCommand<T>(
     } catch (error) {
       const durationMs = Date.now() - startTime;
       const err = error as Error;
+
+      // Command was sent but confirmation wasn't received — log as
+      // UNCONFIRMED and re-throw so the route handler can return 202.
+      if (error instanceof SaicCommandUnconfirmedError) {
+        repo.logCommand(
+          vin, commandName, 'UNCONFIRMED',
+          requestBody ? JSON.stringify(requestBody) : undefined,
+          JSON.stringify({ warning: err.message }),
+          undefined, durationMs
+        );
+        logger.warn(`SAIC command ${commandName} on ${vin.slice(0, 6)}... unconfirmed after ${durationMs}ms: ${err.message}`);
+        throw error;
+      }
 
       repo.logCommand(
         vin, commandName, 'FAILURE',
