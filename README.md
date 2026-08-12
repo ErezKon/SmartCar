@@ -8,6 +8,7 @@ A full-stack Node.js application integrating with the [Smartcar API v3](https://
 - **Vehicle Commands** - Start/stop charging, lock/unlock doors, set navigation destinations, manage charge schedules
 - **Smartcar Connect** - OAuth 2.0 flow for vehicle authorization (simulated and live modes)
 - **SAIC iSmart Direct** - Native integration with the MG/SAIC iSmart API for regions not supported by Smartcar (e.g. Israel). Full telemetry, charging control, lock/unlock, climate, and alarm messages via the reverse-engineered API.
+- **Charging Statistics** - Track charging sessions with energy efficiency analysis (kWh/100km). Auto-detection via alarm message polling plus manual logging buttons. Dedicated Statistics page with summary cards, per-session table, and efficiency trend visualization.
 - **Provider Switch** - Toggle between Smartcar and SAIC providers in the UI; the dashboard, navigation, and CLI adapt automatically.
 - **Webhook Receiver** - HMAC-SHA256 verified webhook endpoint with ngrok tunnel support for development
 - **Compatibility Check** - Query Smartcar's compatibility database for supported vehicles

@@ -176,5 +176,34 @@ export interface SaicSettings {
   pollingIntervalMs: number;
 }
 
+// Charging Sessions
+export interface SaicChargingSession {
+  id: number;
+  vin: string;
+  status: 'charging' | 'completed';
+  start_time: string;
+  end_time: string | null;
+  start_soc_pct: number;
+  end_soc_pct: number | null;
+  start_battery_kwh: number;
+  end_battery_kwh: number | null;
+  energy_added_kwh: number | null;
+  start_odometer_km: number;
+  end_odometer_km: number | null;
+  distance_since_last_charge_km: number | null;
+  energy_used_since_last_charge_kwh: number | null;
+  efficiency_kwh_per_100km: number | null;
+  created_at: string;
+}
+
+export interface SaicChargingStats {
+  total_sessions: number;
+  total_energy_added_kwh: number;
+  total_distance_tracked_km: number;
+  average_efficiency_kwh_per_100km: number | null;
+  best_efficiency_kwh_per_100km: number | null;
+  worst_efficiency_kwh_per_100km: number | null;
+}
+
 // Provider type
 export type ProviderType = 'smartcar' | 'saic';

@@ -1,0 +1,215 @@
+<div class="statistics-container">
+  <div class="statistics-header">
+    <h2>
+      <mat-icon>bar_chart</mat-icon>
+      Charging Statistics
+    </h2>
+    <div class="header-actions">
+      <mat-form-field appearance="outline" *ngIf="vehicles.length > 1" class="vehicle-select">
+        <mat-label>Vehicle</mat-label>
+        <mat-select [(ngModel)]="selectedVin" (selectionChange)="onVehicleChange()">
+          <mat-option *ngFor="let v of vehicles" [value]="v.vin">
+            {{ v.modelName || v.series }} ({{ v.vin.slice(-6) }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-icon-button (click)="loadData()" [disabled]="sessionsLoading"
+        matTooltip="Refresh statistics">
+        <mat-spinner *ngIf="sessionsLoading" diameter="24"></mat-spinner>
+        <mat-icon *ngIf="!sessionsLoading">refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading statistics...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon>warning</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" routerLink="/saic/connect">Connect Account</button>
+  </div>
+
+  <div *ngIf="!loading && !error && selectedVin" class="statistics-content">
+
+    <!-- Summary Cards -->
+    <div class="summary-grid" *ngIf="stats">
+      <mat-card class="summary-card">
+        <div class="summary-icon sessions-icon">
+          <mat-icon>ev_station</mat-icon>
+        </div>
+        <div class="summary-data">
+          <span class="summary-value">{{ stats.total_sessions }}</span>
+          <span class="summary-label">Total Sessions</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="summary-card">
+        <div class="summary-icon energy-icon">
+          <mat-icon>bolt</mat-icon>
+        </div>
+        <div class="summary-data">
+          <span class="summary-value">{{ formatNum(stats.total_energy_added_kwh) }}</span>
+          <span class="summary-label">Energy Added (kWh)</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="summary-card">
+        <div class="summary-icon distance-icon">
+          <mat-icon>straighten</mat-icon>
+        </div>
+        <div class="summary-data">
+          <span class="summary-value">{{ formatNum(stats.total_distance_tracked_km, 0) }}</span>
+          <span class="summary-label">Distance Tracked (km)</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="summary-card">
+        <div class="summary-icon efficiency-icon">
+          <mat-icon>speed</mat-icon>
+        </div>
+        <div class="summary-data">
+          <span class="summary-value">{{ formatNum(stats.average_efficiency_kwh_per_100km) }}</span>
+          <span class="summary-label">Avg Efficiency (kWh/100km)</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="summary-card" *ngIf="stats.best_efficiency_kwh_per_100km != null">
+        <div class="summary-icon best-icon">
+          <mat-icon>emoji_events</mat-icon>
+        </div>
+        <div class="summary-data">
+          <span class="summary-value">{{ formatNum(stats.best_efficiency_kwh_per_100km) }}</span>
+          <span class="summary-label">Best Efficiency (kWh/100km)</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="summary-card" *ngIf="stats.worst_efficiency_kwh_per_100km != null">
+        <div class="summary-icon worst-icon">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="summary-data">
+          <span class="summary-value">{{ formatNum(stats.worst_efficiency_kwh_per_100km) }}</span>
+          <span class="summary-label">Worst Efficiency (kWh/100km)</span>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Efficiency Trend -->
+    <mat-card class="trend-card" *ngIf="efficiencyTrend.length > 1">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>trending_down</mat-icon>
+        <mat-card-title>Efficiency Trend</mat-card-title>
+        <mat-card-subtitle>kWh/100km across sessions (lower is better)</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="trend-bars">
+          <div class="trend-bar-item" *ngFor="let point of efficiencyTrend; let i = index">
+            <div class="trend-bar-wrapper">
+              <div class="trend-bar"
+                   [style.height.%]="(point.efficiency / (stats?.worst_efficiency_kwh_per_100km || point.efficiency)) * 80 + 20"
+                   [class.best]="point.efficiency === stats?.best_efficiency_kwh_per_100km"
+                   [class.worst]="point.efficiency === stats?.worst_efficiency_kwh_per_100km"
+                   [matTooltip]="formatNum(point.efficiency) + ' kWh/100km on ' + formatDate(point.date)">
+                <span class="trend-bar-value">{{ formatNum(point.efficiency) }}</span>
+              </div>
+            </div>
+            <span class="trend-bar-label">{{ formatDate(point.date).split(' ')[0] }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Sessions Table -->
+    <mat-card class="sessions-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>list</mat-icon>
+        <mat-card-title>Charging Sessions</mat-card-title>
+        <mat-card-subtitle>{{ sessions.length }} session{{ sessions.length !== 1 ? 's' : '' }} recorded</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="sessions.length === 0" class="empty-state">
+          <mat-icon>battery_charging_full</mat-icon>
+          <p>No charging sessions recorded yet.</p>
+          <p class="hint">Use the "Log Charge Start" / "Log Charge Stop" buttons on the dashboard to record sessions.</p>
+        </div>
+
+        <div class="table-wrapper" *ngIf="sessions.length > 0">
+          <table mat-table [dataSource]="sessions" class="sessions-table">
+
+            <!-- Date Column -->
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let session">
+                <div class="date-cell">
+                  <span class="date-primary">{{ formatDate(session.start_time) }}</span>
+                  <span class="status-chip" [class.active]="session.status === 'charging'"
+                        [class.completed]="session.status === 'completed'">
+                    {{ session.status }}
+                  </span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- SOC Column -->
+            <ng-container matColumnDef="soc">
+              <th mat-header-cell *matHeaderCellDef>SOC</th>
+              <td mat-cell *matCellDef="let session">
+                <span>{{ formatNum(session.start_soc_pct, 0) }}%</span>
+                <mat-icon class="arrow-icon" *ngIf="session.end_soc_pct != null">arrow_forward</mat-icon>
+                <span *ngIf="session.end_soc_pct != null">{{ formatNum(session.end_soc_pct, 0) }}%</span>
+              </td>
+            </ng-container>
+
+            <!-- Energy Added Column -->
+            <ng-container matColumnDef="energy_added">
+              <th mat-header-cell *matHeaderCellDef>Energy Added</th>
+              <td mat-cell *matCellDef="let session">
+                {{ session.energy_added_kwh != null ? formatNum(session.energy_added_kwh) + ' kWh' : '-' }}
+              </td>
+            </ng-container>
+
+            <!-- Distance Column -->
+            <ng-container matColumnDef="distance">
+              <th mat-header-cell *matHeaderCellDef>Distance Driven</th>
+              <td mat-cell *matCellDef="let session">
+                {{ session.distance_since_last_charge_km != null ? formatNum(session.distance_since_last_charge_km) + ' km' : '-' }}
+              </td>
+            </ng-container>
+
+            <!-- Efficiency Column -->
+            <ng-container matColumnDef="efficiency">
+              <th mat-header-cell *matHeaderCellDef>Efficiency</th>
+              <td mat-cell *matCellDef="let session">
+                <span *ngIf="session.efficiency_kwh_per_100km != null" class="efficiency-value"
+                      [class.good]="session.efficiency_kwh_per_100km <= 16"
+                      [class.ok]="session.efficiency_kwh_per_100km > 16 && session.efficiency_kwh_per_100km <= 20"
+                      [class.poor]="session.efficiency_kwh_per_100km > 20">
+                  {{ formatNum(session.efficiency_kwh_per_100km) }} kWh/100km
+                </span>
+                <span *ngIf="session.efficiency_kwh_per_100km == null">-</span>
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let session">
+                <button mat-icon-button color="warn" (click)="deleteSession(session)"
+                  matTooltip="Delete this session">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="sessionColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: sessionColumns;"></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>

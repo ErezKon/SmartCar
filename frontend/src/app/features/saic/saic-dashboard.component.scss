@@ -296,6 +296,23 @@
   }
 }
 
+.session-logging {
+  padding-top: 8px;
+
+  .section-label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.54);
+    margin-bottom: 8px;
+  }
+
+  .session-logging-actions {
+    display: flex;
+    gap: 8px;
+  }
+}
+
 .schedule-controls {
   display: flex;
   flex-direction: column;

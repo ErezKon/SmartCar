@@ -19,6 +19,10 @@ import { SaicCommandUnconfirmedError } from '../saic/errors';
 import type { ClimateMode } from '../saic/commands';
 import type { ChargingScheduleMode, BatteryHeatingScheduleMode, AlarmSwitch } from '../saic/types';
 import { normalizeVehicleStatus, normalizeChargingData } from '../saic/normalize';
+import {
+  startChargingSession, stopChargingSession,
+  getChargingSessions, getChargingStats, getActiveChargingSession, deleteChargingSession,
+} from '../saic/charging-sessions';
 import { getDatabase } from '../db/database';
 import { SaicRepository } from '../db/repositories/saic.repository';
 import { logger } from '../utils/logger';
@@ -357,6 +361,94 @@ saicRouter.get('/messages/unreadCount', async (_req: Request, res: Response) => 
       error: 'Failed to get unread message count',
       message: safeErrorMessage(err),
     });
+  }
+});
+
+// --- Charging Sessions ---
+
+// POST /api/saic/vehicles/:vin/charging-sessions/start - Log charge start
+saicRouter.post('/vehicles/:vin/charging-sessions/start', refreshLimiter, async (req: Request, res: Response) => {
+  try {
+    const vin = req.params.vin as string;
+    const session = await startChargingSession(vin);
+    res.status(201).json({ data: session });
+  } catch (error) {
+    const err = error as Error & { statusCode?: number };
+    logger.error(`SAIC charging session start error: ${err.message}`);
+    res.status(err.statusCode || 500).json({
+      error: 'Failed to start charging session',
+      message: safeErrorMessage(err),
+    });
+  }
+});
+
+// POST /api/saic/vehicles/:vin/charging-sessions/stop - Log charge stop
+saicRouter.post('/vehicles/:vin/charging-sessions/stop', refreshLimiter, async (req: Request, res: Response) => {
+  try {
+    const vin = req.params.vin as string;
+    const session = await stopChargingSession(vin);
+    res.json({ data: session });
+  } catch (error) {
+    const err = error as Error & { statusCode?: number };
+    logger.error(`SAIC charging session stop error: ${err.message}`);
+    res.status(err.statusCode || 500).json({
+      error: 'Failed to stop charging session',
+      message: safeErrorMessage(err),
+    });
+  }
+});
+
+// GET /api/saic/vehicles/:vin/charging-sessions - List sessions
+saicRouter.get('/vehicles/:vin/charging-sessions', async (req: Request, res: Response) => {
+  try {
+    const vin = req.params.vin as string;
+    const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : 50;
+    const offset = req.query.offset ? parseInt(String(req.query.offset), 10) : 0;
+
+    const sessions = await getChargingSessions(vin, limit, offset);
+    const active = await getActiveChargingSession(vin);
+
+    res.json({ data: sessions, hasActiveSession: !!active });
+  } catch (error) {
+    const err = error as Error;
+    logger.error(`SAIC charging sessions list error: ${err.message}`);
+    res.status(500).json({ error: 'Failed to get charging sessions', message: safeErrorMessage(err) });
+  }
+});
+
+// GET /api/saic/vehicles/:vin/charging-sessions/stats - Get aggregate stats
+saicRouter.get('/vehicles/:vin/charging-sessions/stats', async (req: Request, res: Response) => {
+  try {
+    const vin = req.params.vin as string;
+    const stats = await getChargingStats(vin);
+    res.json({ data: stats });
+  } catch (error) {
+    const err = error as Error;
+    logger.error(`SAIC charging stats error: ${err.message}`);
+    res.status(500).json({ error: 'Failed to get charging stats', message: safeErrorMessage(err) });
+  }
+});
+
+// DELETE /api/saic/vehicles/:vin/charging-sessions/:id - Delete a session
+saicRouter.delete('/vehicles/:vin/charging-sessions/:id', async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id as string, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Invalid session ID' });
+      return;
+    }
+
+    const deleted = await deleteChargingSession(id);
+    if (!deleted) {
+      res.status(404).json({ error: 'Session not found' });
+      return;
+    }
+
+    res.json({ status: 'deleted' });
+  } catch (error) {
+    const err = error as Error;
+    logger.error(`SAIC charging session delete error: ${err.message}`);
+    res.status(500).json({ error: 'Failed to delete charging session', message: safeErrorMessage(err) });
   }
 });
 

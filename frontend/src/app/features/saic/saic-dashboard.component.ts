@@ -52,6 +52,11 @@ export class SaicDashboardComponent implements OnInit, OnDestroy {
   pollingIntervalMs = 30000;
   private cacheRefreshTimer: ReturnType<typeof setInterval> | null = null;
 
+  // Charging session tracking
+  hasActiveChargingSession = false;
+  logChargeStartStatus: CmdStatus = 'idle';
+  logChargeStopStatus: CmdStatus = 'idle';
+
   // Command statuses
   lockStatus: CmdStatus = 'idle';
   unlockStatus: CmdStatus = 'idle';
@@ -193,6 +198,7 @@ export class SaicDashboardComponent implements OnInit, OnDestroy {
           });
           this.loading = false;
           this.refreshing = false;
+          this.checkActiveChargingSession();
         },
         error: err => {
           this.loading = false;
@@ -213,6 +219,56 @@ export class SaicDashboardComponent implements OnInit, OnDestroy {
       this.saicApi.getCommandLogs(this.selectedVin).subscribe({
         next: res => { this.commandLogs = res.data || []; },
         error: () => { this.commandLogs = []; }
+      })
+    );
+  }
+
+  checkActiveChargingSession(): void {
+    if (!this.selectedVin) return;
+    this.subs.push(
+      this.saicApi.getChargingSessions(this.selectedVin, 1, 0).subscribe({
+        next: res => { this.hasActiveChargingSession = res.hasActiveSession; },
+        error: () => { this.hasActiveChargingSession = false; }
+      })
+    );
+  }
+
+  logChargeStart(): void {
+    if (!this.selectedVin) return;
+    this.logChargeStartStatus = 'loading';
+    this.subs.push(
+      this.saicApi.startChargingSession(this.selectedVin).subscribe({
+        next: () => {
+          this.logChargeStartStatus = 'success';
+          this.hasActiveChargingSession = true;
+          this.snackBar.open('Charging session logged (start)', 'OK', { duration: 3000 });
+          setTimeout(() => { this.logChargeStartStatus = 'idle'; }, 3000);
+        },
+        error: err => {
+          this.logChargeStartStatus = 'error';
+          this.snackBar.open(err.error?.message || 'Failed to log charge start', 'OK', { duration: 4000 });
+          setTimeout(() => { this.logChargeStartStatus = 'idle'; }, 3000);
+        }
+      })
+    );
+  }
+
+  logChargeStop(): void {
+    if (!this.selectedVin) return;
+    this.logChargeStopStatus = 'loading';
+    this.subs.push(
+      this.saicApi.stopChargingSession(this.selectedVin).subscribe({
+        next: () => {
+          this.logChargeStopStatus = 'success';
+          this.hasActiveChargingSession = false;
+          this.snackBar.open('Charging session logged (stop)', 'OK', { duration: 3000 });
+          setTimeout(() => { this.logChargeStopStatus = 'idle'; }, 3000);
+        },
+        error: err => {
+          this.logChargeStopStatus = 'error';
+          this.snackBar.open(err.error?.message || 'Failed to log charge stop', 'OK', { duration: 4000 });
+          setTimeout(() => { this.logChargeStopStatus = 'idle'; }, 3000);
+        }
       })
     );
   }

@@ -59,6 +59,34 @@ export interface SaicMessage {
   created_at: string;
 }
 
+export interface SaicChargingSession {
+  id: number;
+  vin: string;
+  status: 'charging' | 'completed';
+  start_time: string;
+  end_time: string | null;
+  start_soc_pct: number;
+  end_soc_pct: number | null;
+  start_battery_kwh: number;
+  end_battery_kwh: number | null;
+  energy_added_kwh: number | null;
+  start_odometer_km: number;
+  end_odometer_km: number | null;
+  distance_since_last_charge_km: number | null;
+  energy_used_since_last_charge_kwh: number | null;
+  efficiency_kwh_per_100km: number | null;
+  created_at: string;
+}
+
+export interface SaicChargingStats {
+  total_sessions: number;
+  total_energy_added_kwh: number;
+  total_distance_tracked_km: number;
+  average_efficiency_kwh_per_100km: number | null;
+  best_efficiency_kwh_per_100km: number | null;
+  worst_efficiency_kwh_per_100km: number | null;
+}
+
 export class SaicRepository {
   constructor(private db: SqlJsDatabase) {}
 
@@ -91,6 +119,7 @@ export class SaicRepository {
   }
 
   deleteAccount(): void {
+    this.db.run('DELETE FROM saic_charging_sessions');
     this.db.run('DELETE FROM saic_messages');
     this.db.run('DELETE FROM saic_command_logs');
     this.db.run('DELETE FROM saic_state_snapshots');
@@ -289,5 +318,119 @@ export class SaicRepository {
     }
     stmt.free();
     return results;
+  }
+
+  // --- Charging Sessions ---
+
+  createChargingSession(
+    vin: string,
+    startSocPct: number,
+    startBatteryKwh: number,
+    startOdometerKm: number
+  ): SaicChargingSession {
+    this.db.run(
+      `INSERT INTO saic_charging_sessions (vin, status, start_soc_pct, start_battery_kwh, start_odometer_km)
+       VALUES (?, 'charging', ?, ?, ?)`,
+      [vin, startSocPct, startBatteryKwh, startOdometerKm]
+    );
+    saveDatabase();
+    const stmt = this.db.prepare('SELECT * FROM saic_charging_sessions WHERE id = last_insert_rowid()');
+    stmt.step();
+    const row = stmt.getAsObject() as unknown as SaicChargingSession;
+    stmt.free();
+    return row;
+  }
+
+  getActiveSession(vin: string): SaicChargingSession | null {
+    const stmt = this.db.prepare(
+      "SELECT * FROM saic_charging_sessions WHERE vin = ? AND status = 'charging' ORDER BY id DESC LIMIT 1"
+    );
+    stmt.bind([vin]);
+    if (stmt.step()) {
+      const row = stmt.getAsObject() as unknown as SaicChargingSession;
+      stmt.free();
+      return row;
+    }
+    stmt.free();
+    return null;
+  }
+
+  completeChargingSession(
+    id: number,
+    endSocPct: number,
+    endBatteryKwh: number,
+    endOdometerKm: number,
+    energyAddedKwh: number,
+    distanceSinceLastKm: number | null,
+    energyUsedSinceLastKwh: number | null,
+    efficiencyKwhPer100km: number | null
+  ): void {
+    this.db.run(
+      `UPDATE saic_charging_sessions
+       SET status = 'completed',
+           end_time = datetime('now'),
+           end_soc_pct = ?,
+           end_battery_kwh = ?,
+           end_odometer_km = ?,
+           energy_added_kwh = ?,
+           distance_since_last_charge_km = ?,
+           energy_used_since_last_charge_kwh = ?,
+           efficiency_kwh_per_100km = ?
+       WHERE id = ?`,
+      [endSocPct, endBatteryKwh, endOdometerKm, energyAddedKwh, distanceSinceLastKm, energyUsedSinceLastKwh, efficiencyKwhPer100km, id]
+    );
+    saveDatabase();
+  }
+
+  getChargingSessions(vin: string, limit = 50, offset = 0): SaicChargingSession[] {
+    const results: SaicChargingSession[] = [];
+    const stmt = this.db.prepare(
+      'SELECT * FROM saic_charging_sessions WHERE vin = ? ORDER BY start_time DESC LIMIT ? OFFSET ?'
+    );
+    stmt.bind([vin, limit, offset]);
+    while (stmt.step()) {
+      results.push(stmt.getAsObject() as unknown as SaicChargingSession);
+    }
+    stmt.free();
+    return results;
+  }
+
+  getChargingStats(vin: string): SaicChargingStats {
+    const stmt = this.db.prepare(`
+      SELECT
+        COUNT(*) as total_sessions,
+        COALESCE(SUM(energy_added_kwh), 0) as total_energy_added_kwh,
+        COALESCE(SUM(distance_since_last_charge_km), 0) as total_distance_tracked_km,
+        AVG(efficiency_kwh_per_100km) as average_efficiency_kwh_per_100km,
+        MIN(efficiency_kwh_per_100km) as best_efficiency_kwh_per_100km,
+        MAX(efficiency_kwh_per_100km) as worst_efficiency_kwh_per_100km
+      FROM saic_charging_sessions
+      WHERE vin = ? AND status = 'completed'
+    `);
+    stmt.bind([vin]);
+    stmt.step();
+    const row = stmt.getAsObject() as unknown as SaicChargingStats;
+    stmt.free();
+    return row;
+  }
+
+  getLastCompletedSession(vin: string): SaicChargingSession | null {
+    const stmt = this.db.prepare(
+      "SELECT * FROM saic_charging_sessions WHERE vin = ? AND status = 'completed' ORDER BY end_time DESC LIMIT 1"
+    );
+    stmt.bind([vin]);
+    if (stmt.step()) {
+      const row = stmt.getAsObject() as unknown as SaicChargingSession;
+      stmt.free();
+      return row;
+    }
+    stmt.free();
+    return null;
+  }
+
+  deleteChargingSession(id: number): boolean {
+    this.db.run('DELETE FROM saic_charging_sessions WHERE id = ?', [id]);
+    saveDatabase();
+    return this.db.getRowsModified() > 0;
   }
 }
