@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,9 +7,13 @@ import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Subscription } from 'rxjs';
 import { SmartcarApiService } from '../../core/services/smartcar-api.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ProviderService } from '../../core/services/provider.service';
+import { SaicApiService } from '../../core/services/saic-api.service';
 import { Connection, ConnectedUser, Application, TokenInfo } from '../../core/models';
+import { SaicAccountStatus, ProviderType } from '../../core/models/saic.models';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 
 @Component({
@@ -23,21 +27,35 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
   connections: Connection[] = [];
   users: ConnectedUser[] = [];
   applications: Application[] = [];
   tokenInfo: TokenInfo | null = null;
-  loading = { connections: false, users: false, apps: false, token: false };
+  activeProvider: ProviderType = 'smartcar';
+  saicStatus: SaicAccountStatus | null = null;
+  loading = { connections: false, users: false, apps: false, token: false, saic: false };
+  private subs: Subscription[] = [];
 
   constructor(
     private api: SmartcarApiService,
     private auth: AuthService,
+    private providerService: ProviderService,
+    private saicApi: SaicApiService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
+    this.subs.push(
+      this.providerService.activeProvider$.subscribe(p => {
+        this.activeProvider = p;
+      })
+    );
     this.loadAll();
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
   }
 
   loadAll(): void {
@@ -45,6 +63,17 @@ export class SettingsComponent implements OnInit {
     this.loadUsers();
     this.loadApplications();
     this.loadToken();
+    this.loadSaicStatus();
+  }
+
+  loadSaicStatus(): void {
+    this.loading.saic = true;
+    this.subs.push(
+      this.saicApi.getAccountStatus().subscribe({
+        next: status => { this.saicStatus = status; this.loading.saic = false; },
+        error: () => { this.saicStatus = { connected: false }; this.loading.saic = false; }
+      })
+    );
   }
 
   loadConnections(): void {

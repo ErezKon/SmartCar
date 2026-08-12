@@ -95,5 +95,89 @@ export function runMigrations(db: SqlJsDatabase): void {
     ON command_logs(vehicle_id, created_at)
   `);
 
+  // --- SAIC tables ---
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS saic_accounts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL,
+      password_enc TEXT NOT NULL,
+      region TEXT NOT NULL DEFAULT 'il',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS saic_tokens (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id INTEGER NOT NULL,
+      access_token TEXT NOT NULL,
+      refresh_token TEXT,
+      expires_at INTEGER NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (account_id) REFERENCES saic_accounts(id)
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS saic_vehicles (
+      vin TEXT PRIMARY KEY,
+      account_id INTEGER NOT NULL,
+      model TEXT,
+      name TEXT,
+      config_json TEXT,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (account_id) REFERENCES saic_accounts(id)
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS saic_state_snapshots (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      vin TEXT NOT NULL,
+      field TEXT NOT NULL,
+      value TEXT,
+      recorded_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  db.run(`
+    CREATE INDEX IF NOT EXISTS idx_saic_state_snapshots_vin_field
+    ON saic_state_snapshots(vin, field)
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS saic_command_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      vin TEXT NOT NULL,
+      command TEXT NOT NULL,
+      status TEXT NOT NULL,
+      request_body TEXT,
+      response_body TEXT,
+      event_id TEXT,
+      duration_ms INTEGER,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  db.run(`
+    CREATE INDEX IF NOT EXISTS idx_saic_command_logs_vin
+    ON saic_command_logs(vin, created_at)
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS saic_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      vin TEXT,
+      message_id TEXT UNIQUE,
+      type TEXT,
+      title TEXT,
+      content TEXT,
+      message_time TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
   logger.info('Database migrations completed');
 }

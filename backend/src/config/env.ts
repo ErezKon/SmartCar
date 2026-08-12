@@ -13,6 +13,10 @@ interface EnvConfig {
   FRONTEND_URL: string;
   NGROK_AUTHTOKEN: string;
   DATABASE_PATH: string;
+  SAIC_CREDENTIALS_KEY: string;
+  SAIC_REGION: string;
+  SAIC_POLLING_ENABLED: boolean;
+  SAIC_POLL_INTERVAL_MS: number;
 }
 
 function getEnvVar(key: string, required = true): string {
@@ -33,4 +37,8 @@ export const env: EnvConfig = {
   FRONTEND_URL: getEnvVar('FRONTEND_URL', false) || 'http://localhost:4200',
   NGROK_AUTHTOKEN: getEnvVar('NGROK_AUTHTOKEN', false),
   DATABASE_PATH: getEnvVar('DATABASE_PATH', false) || './data/smartcar.db',
+  SAIC_CREDENTIALS_KEY: getEnvVar('SAIC_CREDENTIALS_KEY', false),
+  SAIC_REGION: getEnvVar('SAIC_REGION', false) || 'il',
+  SAIC_POLLING_ENABLED: getEnvVar('SAIC_POLLING_ENABLED', false).toLowerCase() === 'true',
+  SAIC_POLL_INTERVAL_MS: parseInt(getEnvVar('SAIC_POLL_INTERVAL_MS', false) || '30000', 10),
 };

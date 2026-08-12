@@ -29,6 +29,21 @@
   }
 }
 
+.provider-toggle {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+  .provider-group {
+    width: 100%;
+    display: flex;
+
+    mat-button-toggle {
+      flex: 1;
+      text-align: center;
+    }
+  }
+}
+
 .nav-item {
   &.active-link {
     background: rgba(63, 81, 181, 0.08);

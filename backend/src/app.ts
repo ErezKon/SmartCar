@@ -11,8 +11,13 @@ import { commandsRouter } from './routes/commands.routes';
 import { webhooksRouter, subscriptionsRouter, webhookEventsRouter } from './routes/webhooks.routes';
 import { compatibilityRouter } from './routes/compatibility.routes';
 import { managementRouter } from './routes/management.routes';
+import { saicRouter } from './routes/saic.routes';
 
 const app = express();
+
+// Trust the first reverse proxy (nginx frontend container)
+// Required for express-rate-limit to read the real client IP from X-Forwarded-For
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet());
@@ -43,6 +48,7 @@ app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/webhook-events', webhookEventsRouter);
 app.use('/api/compatibility', compatibilityRouter);
 app.use('/api/management', managementRouter);
+app.use('/api/saic', saicRouter);
 
 // Health check
 app.get('/health', (_req, res) => {
@@ -71,6 +77,29 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
     };
     const friendly = friendlyMessages[scErr.errorType] || err.message;
     res.status(scErr.statusCode).json({ error: friendly, type: scErr.errorType, code: scErr.errorCode });
+    return;
+  }
+
+  if (err.name === 'SaicApiError') {
+    const saicErr = err as Error & { statusCode: number; apiCode?: number };
+    const saicFriendly: Record<string, string> = {
+      SaicAuthError: 'SAIC authentication failed. Check your credentials.',
+      SaicVehicleAsleepError: 'The vehicle is asleep and did not respond. Try again later or wait for it to wake up.',
+      SaicPinRequiredError: 'This command requires a PIN that is not configured.',
+      SaicThrottledError: 'Too many requests to the SAIC API. Please wait and try again.',
+    };
+    const friendly = saicFriendly[err.name] || err.message;
+    res.status(saicErr.statusCode).json({ error: friendly, type: err.name });
+    return;
+  }
+
+  if (err.name === 'SaicAuthError') {
+    res.status(401).json({ error: 'SAIC authentication failed. Check your credentials.', type: 'SaicAuthError' });
+    return;
+  }
+
+  if (err.name === 'SaicVehicleAsleepError') {
+    res.status(504).json({ error: 'The vehicle is asleep and did not respond.', type: 'SaicVehicleAsleepError' });
     return;
   }
 

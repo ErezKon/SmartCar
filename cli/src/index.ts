@@ -11,6 +11,7 @@ import { registerNavCommands } from './commands/nav';
 import { registerScheduleCommands } from './commands/schedule';
 import { registerWebhooksCommands } from './commands/webhooks';
 import { registerCompatibilityCommands } from './commands/compatibility';
+import { registerSaicCommands } from './commands/saic';
 
 dotenv.config();
 
@@ -30,5 +31,6 @@ registerNavCommands(program);
 registerScheduleCommands(program);
 registerWebhooksCommands(program);
 registerCompatibilityCommands(program);
+registerSaicCommands(program);
 
 program.parse();

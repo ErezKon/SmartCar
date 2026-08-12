@@ -43,6 +43,24 @@ export function isValidDay(day: string): boolean {
   return VALID_DAYS.includes(day.toLowerCase());
 }
 
+/**
+ * Redact sensitive values from a string before logging.
+ * Masks tokens, passwords, keys, and credentials.
+ */
+const SENSITIVE_PATTERNS: Array<{ pattern: RegExp; replacement: string }> = [
+  { pattern: /(access_token|blade-auth|authorization|token)['":\s]*['"]?([A-Za-z0-9_\-./+=]{8,})/gi, replacement: '$1: [REDACTED]' },
+  { pattern: /(password|passwd|secret|credential|api[_-]?key)['":\s]*['"]?([^\s'"}{,]{4,})/gi, replacement: '$1: [REDACTED]' },
+  { pattern: /(SAIC_CREDENTIALS_KEY)[=:]([^\s]{4,})/gi, replacement: '$1=[REDACTED]' },
+];
+
+export function redactSensitive(message: string): string {
+  let result = message;
+  for (const { pattern, replacement } of SENSITIVE_PATTERNS) {
+    result = result.replace(pattern, replacement);
+  }
+  return result;
+}
+
 export function buildQueryString(params: Record<string, string | number | boolean | undefined>): string {
   const entries = Object.entries(params)
     .filter(([, v]) => v !== undefined && v !== '')

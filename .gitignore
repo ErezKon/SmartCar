@@ -10,3 +10,8 @@ frontend/dist/
 frontend/.vscode/
 cli/node_modules/
 cli/dist/
+
+# SQLite runtime data
+backend/data/smartcar.db
+backend/data/smartcar.db-wal
+backend/data/smartcar.db-shm

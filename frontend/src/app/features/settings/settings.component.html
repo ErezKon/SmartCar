@@ -84,6 +84,40 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- SAIC Connection Status -->
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="teal-avatar">electric_car</mat-icon>
+      <mat-card-title>SAIC iSmart</mat-card-title>
+      <mat-card-subtitle>Direct vehicle API connection</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-spinner *ngIf="loading.saic" diameter="24"></mat-spinner>
+      <div *ngIf="saicStatus && !loading.saic">
+        <div class="info-row">
+          <span class="label">Active Provider</span>
+          <app-status-badge [status]="activeProvider === 'saic' ? 'SAIC' : 'Smartcar'" size="small"></app-status-badge>
+        </div>
+        <div class="info-row">
+          <span class="label">SAIC Account</span>
+          <app-status-badge [status]="saicStatus.connected ? 'Connected' : 'Not Connected'" size="small"></app-status-badge>
+        </div>
+        <div class="info-row" *ngIf="saicStatus.connected && saicStatus.username">
+          <span class="label">Username</span>
+          <span class="value">{{ saicStatus.username }}</span>
+        </div>
+        <div class="info-row" *ngIf="saicStatus.connected && saicStatus.region">
+          <span class="label">Region</span>
+          <span class="value">{{ saicStatus.region ? saicStatus.region.toUpperCase() : '' }}</span>
+        </div>
+        <div class="info-row" *ngIf="saicStatus.connected">
+          <span class="label">Token</span>
+          <app-status-badge [status]="saicStatus.tokenValid ? 'Active' : 'Expired'" size="small"></app-status-badge>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
   <!-- Application Info -->
   <mat-card>
     <mat-card-header>

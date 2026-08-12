@@ -1,0 +1,102 @@
+<div class="connect-container">
+  <h2><mat-icon>electric_car</mat-icon> SAIC iSmart Connection</h2>
+
+  <div *ngIf="loadingStatus" class="loading-container">
+    <mat-spinner diameter="32"></mat-spinner>
+    <p>Checking connection status...</p>
+  </div>
+
+  <!-- Connected State -->
+  <mat-card *ngIf="!loadingStatus && accountStatus?.connected" class="status-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="green-avatar">check_circle</mat-icon>
+      <mat-card-title>Connected</mat-card-title>
+      <mat-card-subtitle>SAIC iSmart account linked</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-row">
+        <span class="label">Username</span>
+        <span class="value">{{ accountStatus!.username }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Region</span>
+        <span class="value">{{ accountStatus!.region?.toUpperCase() }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Token</span>
+        <app-status-badge [status]="accountStatus!.tokenValid ? 'Active' : 'Expired'" size="small"></app-status-badge>
+      </div>
+      <div class="info-row" *ngIf="accountStatus!.createdAt">
+        <span class="label">Connected Since</span>
+        <span class="value">{{ accountStatus!.createdAt }}</span>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="warn" (click)="disconnect()" [disabled]="disconnecting">
+        <mat-spinner *ngIf="disconnecting" diameter="18" class="inline-spinner"></mat-spinner>
+        <mat-icon *ngIf="!disconnecting">link_off</mat-icon>
+        Disconnect
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Connect Form -->
+  <mat-card *ngIf="!loadingStatus && !accountStatus?.connected" class="connect-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="blue-avatar">login</mat-icon>
+      <mat-card-title>Connect SAIC Account</mat-card-title>
+      <mat-card-subtitle>Enter your MG iSmart app credentials</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="connect-note">
+        Use the same email/phone and password you use in the MG iSmart app.
+        Credentials are encrypted at rest and never sent to the browser.
+      </p>
+
+      <div *ngIf="error" class="error-banner">
+        <mat-icon>error</mat-icon>
+        <span>{{ error }}</span>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email or Phone</mat-label>
+        <input matInput [(ngModel)]="username" placeholder="user@example.com">
+        <mat-icon matPrefix>person</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" [(ngModel)]="password" placeholder="iSmart password">
+        <mat-icon matPrefix>lock</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Region</mat-label>
+        <mat-select [(ngModel)]="region">
+          <mat-option *ngFor="let r of regions" [value]="r.value">{{ r.label }}</mat-option>
+        </mat-select>
+        <mat-icon matPrefix>public</mat-icon>
+      </mat-form-field>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="connect()"
+              [disabled]="connecting || !username || !password">
+        <mat-spinner *ngIf="connecting" diameter="18" class="inline-spinner"></mat-spinner>
+        <mat-icon *ngIf="!connecting">login</mat-icon>
+        Connect
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Info Card -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="orange-avatar">info</mat-icon>
+      <mat-card-title>About SAIC Direct Connection</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>This connects directly to the SAIC iSmart API, bypassing Smartcar. Use this if your MG vehicle is registered in a region not supported by Smartcar (e.g. Israel).</p>
+      <p><strong>Important:</strong> Logging in here may log you out of the iSmart phone app and vice versa. SAIC only supports one active session.</p>
+    </mat-card-content>
+  </mat-card>
+</div>
