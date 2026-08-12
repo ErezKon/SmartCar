@@ -1303,3 +1303,14 @@ curl http://localhost:3000/api/management/applications/app-abc/secrets
 | GET | `/api/management/applications` | Yes | No | List applications |
 | GET | `/api/management/applications/:id` | Yes | No | Application details |
 | GET | `/api/management/applications/:id/secrets` | Yes | No | Application secrets |
+| POST | `/api/saic/account` | No | No | Connect SAIC account (rate-limited: 5/15min) |
+| GET | `/api/saic/account` | No | No | SAIC account status |
+| DELETE | `/api/saic/account` | No | No | Disconnect SAIC account |
+| GET | `/api/saic/vehicles` | SAIC token | No | List SAIC vehicles |
+| GET | `/api/saic/vehicles/:vin/status` | SAIC token | No | Vehicle status (rate-limited when refresh=true) |
+| GET | `/api/saic/vehicles/:vin/charging` | SAIC token | No | Charging data (rate-limited when refresh=true) |
+| GET | `/api/saic/vehicles/:vin/signals` | SAIC token | No | Normalized signals (rate-limited when refresh=true) |
+| GET | `/api/saic/vehicles/:vin/history` | No | No | Snapshot history (SQLite) |
+| GET | `/api/saic/messages` | SAIC token | No | Alarm/command/news messages |
+| POST | `/api/saic/vehicles/:vin/commands/:command` | SAIC token | No | Execute SAIC command (rate-limited: 10/min) |
+| GET | `/api/saic/vehicles/:vin/commands` | No | No | SAIC command history (SQLite) |

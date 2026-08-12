@@ -1,6 +1,6 @@
-.settings-container {
+.connect-container {
   padding: 24px;
-  max-width: 800px;
+  max-width: 600px;
 
   h2 {
     display: flex;
@@ -11,6 +11,16 @@
   }
 }
 
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  gap: 16px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
 mat-card {
   margin-bottom: 16px;
 }
@@ -18,8 +28,6 @@ mat-card {
 .blue-avatar { background: #2196f3 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
 .green-avatar { background: #4caf50 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
 .orange-avatar { background: #ff9800 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
-.purple-avatar { background: #9c27b0 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
-.teal-avatar { background: #009688 !important; color: white !important; font-size: 24px; width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; }
 
 .info-row {
   display: flex;
@@ -31,15 +39,32 @@ mat-card {
   .value { font-weight: 500; }
 }
 
-.mono {
-  font-family: monospace;
-  font-size: 0.85rem;
+.full-width {
+  width: 100%;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 24px;
-  color: rgba(0, 0, 0, 0.38);
+.connect-note {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  background: #fce4ec;
+  border-radius: 4px;
+  color: #c62828;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
+.inline-spinner {
+  display: inline-block;
+  margin-right: 8px;
 }
 
 mat-card-actions {

@@ -525,3 +525,155 @@ smartcar compat search [options]
 ```sh
 smartcar compat search --make TESLA --region US --powertrain BEV
 ```
+
+---
+
+## saic
+
+SAIC / MG iSmart direct integration commands. These bypass Smartcar and communicate directly with the SAIC iSmart API.
+
+### saic login
+
+Connect a SAIC iSmart account. Credentials are encrypted and stored locally.
+
+```sh
+smartcar saic login --username <email> --password <password> [options]
+```
+
+| Option | Description |
+|---|---|
+| `--username <email>` | SAIC account email or phone (required) |
+| `--password <password>` | SAIC account password (required) |
+| `--region <region>` | Region code: eu, au, tr, il, br, in, th, cn (default: il) |
+
+### saic logout
+
+Disconnect the SAIC account and remove stored credentials.
+
+```sh
+smartcar saic logout
+```
+
+### saic status
+
+Show SAIC account connection status.
+
+```sh
+smartcar saic status [options]
+```
+
+| Option | Description |
+|---|---|
+| `--json` | Output raw JSON |
+
+### saic vehicles
+
+List vehicles registered to the SAIC account.
+
+```sh
+smartcar saic vehicles [options]
+```
+
+| Option | Description |
+|---|---|
+| `--json` | Output raw JSON |
+
+### saic vehicle-status
+
+Get vehicle status (cached by default).
+
+```sh
+smartcar saic vehicle-status <vin> [options]
+```
+
+| Option | Description |
+|---|---|
+| `--refresh` | Force live refresh (wakes the car, drains 12V battery) |
+| `--json` | Output raw JSON |
+
+### saic signals
+
+Get normalized signals (combined status + charging data).
+
+```sh
+smartcar saic signals <vin> [options]
+```
+
+| Option | Description |
+|---|---|
+| `--refresh` | Force live refresh |
+| `--json` | Output raw JSON |
+
+### saic charge
+
+Charging controls.
+
+```sh
+smartcar saic charge start <vin>         # Start charging
+smartcar saic charge stop <vin>          # Stop charging
+smartcar saic charge limit <vin> <pct>   # Set charge limit (40/50/60/70/80/90/100)
+smartcar saic charge current <vin> <lvl> # Set charge current (6A/8A/16A/Max)
+```
+
+### saic lock / unlock
+
+Lock or unlock the vehicle.
+
+```sh
+smartcar saic lock <vin>
+smartcar saic unlock <vin> [options]
+```
+
+| Option | Description |
+|---|---|
+| `--tailgate` | Unlock tailgate instead of doors |
+
+### saic climate
+
+Start or stop climate control.
+
+```sh
+smartcar saic climate <vin> [options]
+```
+
+| Option | Description |
+|---|---|
+| `--stop` | Stop climate instead of starting |
+| `--temp <degrees>` | Target temperature in Celsius, 17-33 (default: 22) |
+| `--fan <speed>` | Fan speed: 1 (low), 2 (med), 3 (high), 5 (defrost) (default: 2) |
+
+### saic find
+
+Activate horn and lights to locate the vehicle.
+
+```sh
+smartcar saic find <vin>
+```
+
+### saic messages
+
+Get alarm/command/news messages.
+
+```sh
+smartcar saic messages [options]
+```
+
+| Option | Description |
+|---|---|
+| `--group <group>` | Message group: ALARM, COMMAND, NEWS (default: ALARM) |
+| `--page <n>` | Page number (default: 1) |
+| `--size <n>` | Page size (default: 20) |
+| `--json` | Output raw JSON |
+
+### saic history
+
+Get command execution history for a vehicle.
+
+```sh
+smartcar saic history <vin> [options]
+```
+
+| Option | Description |
+|---|---|
+| `--limit <n>` | Max results (default: 20) |
+| `--json` | Output raw JSON |

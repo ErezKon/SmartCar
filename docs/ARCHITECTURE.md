@@ -6,11 +6,13 @@
 
 ## 1. Overview
 
-This is a full-stack Node.js application that integrates with the Smartcar API v3 to provide vehicle data retrieval and remote command execution for the MG4 X Range 2026. The system is composed of three main components:
+This is a full-stack Node.js application that integrates with the Smartcar API v3 and the SAIC iSmart API to provide vehicle data retrieval and remote command execution for the MG4. The system supports two providers — Smartcar (OAuth-based) and SAIC iSmart (direct API, for regions Smartcar does not support such as Israel) — with a runtime toggle in the UI and CLI.
 
-- **Express Backend** -- A REST API server that handles authentication, proxies requests to the Smartcar API, manages persistent storage, and processes incoming webhooks.
-- **Angular 17 Frontend** -- A single-page application providing a dashboard interface for monitoring vehicle signals, issuing commands, managing connections, and configuring webhooks.
-- **Commander.js CLI** -- A terminal-based tool for interacting with the backend API directly from the command line, useful for scripting and automation.
+The system is composed of three main components:
+
+- **Express Backend** -- A REST API server that handles authentication, proxies requests to external vehicle APIs (Smartcar and SAIC), manages persistent storage, and processes incoming webhooks.
+- **Angular 17 Frontend** -- A single-page application providing a dashboard interface for monitoring vehicle signals, issuing commands, managing connections, and configuring webhooks. A provider toggle switches between Smartcar and SAIC views.
+- **Commander.js CLI** -- A terminal-based tool for interacting with the backend API directly from the command line, with separate command groups for Smartcar and SAIC operations.
 
 All three components share a common backend API surface, with the frontend and CLI acting as independent consumers.
 
@@ -19,31 +21,35 @@ All three components share a common backend API surface, with the frontend and C
 ## 2. Architecture Diagram
 
 ```
-                    +------------------+
-                    |  Smartcar API v3 |
-                    |  (External)      |
-                    +--------+---------+
-                             |
-                    +--------+---------+
-                    |  Express Backend |
-                    |  (Port 3000)     |
-                    |  - Auth/OAuth    |
-                    |  - API Proxy     |
-                    |  - SQLite DB     |
-                    |  - Webhooks      |
-                    +----+--------+----+
-                         |        |
-              +----------+        +----------+
-              |                              |
-    +---------+----------+     +-------------+---------+
-    | Angular Frontend   |     |   CLI Tool            |
-    | (Port 4200)        |     |   (Commander.js)      |
-    | - Material UI      |     |   - Terminal commands  |
-    | - Proxy to backend |     |   - Calls backend API |
-    +--------------------+     +-----------------------+
+  +------------------+          +-------------------+
+  |  Smartcar API v3 |          | SAIC iSmart API   |
+  |  (External)      |          | (External)        |
+  +--------+---------+          +--------+----------+
+           |                             |
+           +-------------+--------------+
+                          |
+                 +--------+---------+
+                 |  Express Backend |
+                 |  (Port 3000)     |
+                 |  - Auth/OAuth    |
+                 |  - SAIC Module   |
+                 |  - API Proxy     |
+                 |  - SQLite DB     |
+                 |  - Webhooks      |
+                 +----+--------+----+
+                      |        |
+           +----------+        +----------+
+           |                              |
+ +---------+----------+     +-------------+---------+
+ | Angular Frontend   |     |   CLI Tool            |
+ | (Port 4200)        |     |   (Commander.js)      |
+ | - Material UI      |     |   - Terminal commands  |
+ | - Provider Switch  |     |   - saic command group |
+ | - Proxy to backend |     |   - Calls backend API |
+ +--------------------+     +-----------------------+
 ```
 
-The Express backend is the central hub. It is the only component that communicates directly with the external Smartcar API. Both the Angular frontend and the CLI tool interact exclusively through the backend's REST endpoints. The frontend proxies API calls during development via the Angular dev server proxy configuration, and in production via an nginx reverse proxy.
+The Express backend is the central hub. It communicates with both the external Smartcar API (via OAuth 2.0) and the SAIC iSmart API (via encrypted direct requests). Both the Angular frontend and the CLI tool interact exclusively through the backend's REST endpoints. The frontend proxies API calls during development via the Angular dev server proxy configuration, and in production via an nginx reverse proxy.
 
 ---
 
@@ -123,8 +129,23 @@ Express route modules map HTTP endpoints to business logic:
 | `webhooks`        | `/api/webhooks`     | Register, list, delete webhooks; receive events  |
 | `compatibility`   | `/api/compatibility`| VIN compatibility checks                         |
 | `management`      | `/api/management`   | Application-level management operations          |
+| `saic`            | `/api/saic`         | SAIC iSmart: account, vehicles, status, commands, messages |
 
-### 4.6 Middleware
+### 4.6 SAIC Module
+
+The SAIC module (`src/saic/`) is a self-contained integration with the MG iSmart API. It does not share code with the Smartcar API layer.
+
+- **`config.ts`** -- Region-to-gateway map (8 regions including Israel), tenant ID, app version, polling constants.
+- **`crypto.ts`** -- AES-128-CBC encryption/decryption of API request/response bodies, HMAC-SHA256 verification string computation.
+- **`client.ts`** -- `SaicClient` class: header assembly, body encryption, response decryption, event-ID polling loop for async API responses.
+- **`auth.ts`** -- Login (SHA-1 password hash, form-encoded), token cache with expiry, single-flight lock to prevent concurrent logins.
+- **`credentials.ts`** -- AES-256-GCM encryption of stored credentials using `SAIC_CREDENTIALS_KEY`.
+- **`vehicles.ts`** -- Vehicle list, status, charging data, messages. Cached-by-default reads; live refresh is explicit and rate-limited.
+- **`commands.ts`** -- Vehicle control commands (lock/unlock, climate, charging, find car). Per-VIN mutex serialization, command logging.
+- **`normalize.ts`** -- Maps SAIC fields onto the app's signal-code vocabulary for the unified dashboard.
+- **`errors.ts`** -- Typed error classes for auth, vehicle-asleep, throttling, and PIN-required conditions.
+
+### 4.7 Middleware
 
 - **Auth Middleware** -- Applied to all `/api/*` routes (except the auth callback and webhook receiver). Validates that a valid token exists in the database, extracts the associated user ID, and attaches it to the request context. Returns `401` if no valid session is found.
 - **Webhook Verification Middleware** -- Applied to the webhook receiver endpoint. Computes an HMAC-SHA256 signature over the raw request body using the configured webhook secret, then compares it to the signature provided in the request header. Rejects requests with mismatched or missing signatures with a `403` response.
@@ -267,7 +288,9 @@ Smartcar                    ngrok                       Backend
 
 ## 7. Database Schema
 
-The SQLite database contains seven tables:
+The SQLite database contains thirteen tables — seven for Smartcar and six for SAIC:
+
+**Smartcar tables:**
 
 | Table               | Purpose                                                                                  |
 |---------------------|------------------------------------------------------------------------------------------|
@@ -278,6 +301,17 @@ The SQLite database contains seven tables:
 | `webhook_events`    | Stores raw webhook event payloads received from Smartcar, with timestamps, event type, and processing status. |
 | `signal_snapshots`  | Caches the most recent signal readings for each vehicle (battery level, odometer, location, tire pressure, etc.) with retrieval timestamps. |
 | `command_logs`      | Records every command sent to a vehicle: command type, request payload, response payload, HTTP status code, and execution timestamp. Used for auditing and the command history UI. |
+
+**SAIC tables:**
+
+| Table                  | Purpose                                                                                  |
+|------------------------|------------------------------------------------------------------------------------------|
+| `saic_accounts`        | Stores SAIC iSmart account credentials (username, encrypted password, region).           |
+| `saic_tokens`          | Caches SAIC API access tokens with expiry timestamps per account.                        |
+| `saic_vehicles`        | Persists vehicle metadata from the SAIC API (VIN, model, configuration).                 |
+| `saic_state_snapshots` | Caches vehicle state fields (SOC, range, temperature, lock status, etc.) with timestamps. Indexed on (vin, field). |
+| `saic_command_logs`    | Records every command sent via the SAIC API with event ID, status, duration, and payloads. Indexed on (vin, created_at). |
+| `saic_messages`        | Stores alarm/command/news messages from the SAIC API with unique message IDs.            |
 
 All tables include standard `created_at` and `updated_at` timestamp columns managed at the repository level.
 
@@ -352,6 +386,12 @@ CORS is configured to allow requests only from the expected frontend origin (loc
 ### Proxy Architecture
 
 The frontend never communicates directly with the Smartcar API. All external API calls are funneled through the Express backend, which acts as a controlled proxy. This provides a single point for authentication enforcement, rate limiting, logging, and access control. The backend can revoke access, throttle requests, or filter responses without any frontend changes.
+
+### SAIC Credential Security
+
+SAIC account passwords are encrypted at rest using AES-256-GCM with a key derived from the `SAIC_CREDENTIALS_KEY` environment variable. Loss of this key makes stored credentials unrecoverable. Passwords are never returned in API responses or logged. A sensitive-data redaction helper is applied to all error messages before they are sent to the client, preventing accidental leakage of tokens or credentials in error responses.
+
+SAIC API endpoints are rate-limited server-side: login attempts (5/15min), live refresh (6/5min), and commands (10/min).
 
 ### Database Security
 

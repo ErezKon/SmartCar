@@ -4,6 +4,7 @@ import { getDatabase, closeDatabase, startAutoSave, stopAutoSave, saveDatabase }
 import { runMigrations } from './db/migrations';
 import { logger } from './utils/logger';
 import { startNgrokTunnel, stopNgrokTunnel } from './utils/ngrok';
+import { startSaicPolling, stopSaicPolling } from './saic/scheduler';
 
 async function start(): Promise<void> {
   try {
@@ -27,9 +28,13 @@ async function start(): Promise<void> {
       });
     }
 
+    // Start SAIC background polling (if enabled via SAIC_POLLING_ENABLED)
+    startSaicPolling();
+
     // Graceful shutdown
     const shutdown = async (signal: string) => {
       logger.info(`Received ${signal}, shutting down gracefully...`);
+      stopSaicPolling();
       stopNgrokTunnel();
       stopAutoSave();
       server.close(() => {
