@@ -36,7 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
   title = 'Smartcar';
-  activeProvider: ProviderType = 'smartcar';
+  activeProvider: ProviderType = 'saic';
   isMobile = false;
   private subs: Subscription[] = [];
 

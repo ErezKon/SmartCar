@@ -32,7 +32,7 @@ services:
     container_name: smartcar-frontend
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-4200}:4200"
+      - "6060:4200"
     depends_on:
       backend:
         condition: service_healthy
