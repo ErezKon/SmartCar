@@ -62,10 +62,10 @@ async function processAlarmMessages(messages: MessageEntity[]): Promise<void> {
       continue;
     }
 
-    // Log all alarm messages at debug level for format discovery
-    logger.debug(
-      `Alarm message: id=${msgId} type="${msg.messageType}" title="${msg.title}" ` +
-      `content="${msg.content}" vin="${msg.vin}" time="${msg.messageTime}"`
+    // Log new alarm messages at info level for format discovery & monitoring
+    logger.info(
+      `Alarm poller: new message id=${msgId} type="${msg.messageType}" title="${msg.title}" ` +
+      `content="${msg.content}" vin="${msg.vin ? msg.vin.slice(0, 6) + '...' : 'n/a'}" time="${msg.messageTime}"`
     );
 
     const vin = msg.vin;
@@ -123,9 +123,11 @@ async function pollAlarms(): Promise<void> {
     }
 
     const messages = await getMessages('ALARM', 1, 20);
+    const newCount = messages.filter(m => !lastProcessedMessageId || String(m.messageId) > lastProcessedMessageId).length;
     if (messages.length > 0) {
       await processAlarmMessages(messages);
     }
+    logger.info(`Alarm poller: polled ${messages.length} message(s), ${newCount} new`);
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     // Don't log auth errors as warnings since the account might not be set up yet

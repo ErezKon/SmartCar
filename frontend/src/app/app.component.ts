@@ -49,6 +49,7 @@ export class AppComponent implements OnInit, OnDestroy {
     { path: '/compatibility', icon: 'verified', label: 'Compatibility', provider: 'smartcar' },
     { path: '/saic/dashboard', icon: 'electric_car', label: 'SAIC Dashboard', provider: 'saic' },
     { path: '/saic/statistics', icon: 'bar_chart', label: 'Statistics', provider: 'saic' },
+    { path: '/saic/alarms', icon: 'notifications', label: 'Alarms', provider: 'saic' },
     { path: '/saic/connect', icon: 'login', label: 'SAIC Connect', provider: 'saic' },
     { path: '/settings', icon: 'settings', label: 'Settings', provider: 'both' },
   ];

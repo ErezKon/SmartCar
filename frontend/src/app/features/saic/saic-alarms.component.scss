@@ -1,0 +1,103 @@
+.alarms-container {
+  padding: 24px;
+}
+
+.alarms-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+
+  h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: rgba(0, 0, 0, 0.54);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+}
+
+.alarms-count {
+  color: rgba(0, 0, 0, 0.54);
+  margin: 0 0 16px 0;
+  font-size: 14px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: rgba(0, 0, 0, 0.54);
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+  }
+
+  .hint {
+    font-size: 13px;
+    margin-top: 8px;
+    max-width: 400px;
+    text-align: center;
+  }
+}
+
+.alarm-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alarm-card {
+  .alarm-icon {
+    color: #ff9800;
+  }
+
+  mat-card-subtitle {
+    font-size: 13px;
+  }
+}
+
+.alarm-json {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 16px;
+  border-radius: 8px;
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: auto;
+  margin: 8px 0 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}

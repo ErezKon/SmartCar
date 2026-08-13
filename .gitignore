@@ -15,3 +15,6 @@ cli/dist/
 backend/data/smartcar.db
 backend/data/smartcar.db-wal
 backend/data/smartcar.db-shm
+
+# Backend logs
+backend/logs/

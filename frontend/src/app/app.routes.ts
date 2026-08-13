@@ -42,5 +42,9 @@ export const routes: Routes = [
     path: 'saic/statistics',
     loadComponent: () => import('./features/saic/saic-statistics.component').then(m => m.SaicStatisticsComponent)
   },
+  {
+    path: 'saic/alarms',
+    loadComponent: () => import('./features/saic/saic-alarms.component').then(m => m.SaicAlarmsComponent)
+  },
   { path: '**', redirectTo: 'saic/dashboard' }
 ];

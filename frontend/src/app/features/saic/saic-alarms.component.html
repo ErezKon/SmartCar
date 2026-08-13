@@ -1,0 +1,44 @@
+<div class="alarms-container">
+  <div class="alarms-header">
+    <h2><mat-icon>notifications</mat-icon> Alarm Messages</h2>
+    <div class="header-actions">
+      <button mat-icon-button (click)="loadAlarms()" matTooltip="Refresh">
+        <mat-icon [class.spinning]="loading">refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading alarm messages...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <a mat-raised-button color="primary" routerLink="/saic/connect">Connect Account</a>
+  </div>
+
+  <div *ngIf="!loading && !error" class="alarms-content">
+    <p class="alarms-count">{{ alarms.length }} alarm message(s) from SAIC cloud</p>
+
+    <div *ngIf="alarms.length === 0" class="empty-state">
+      <mat-icon>notifications_off</mat-icon>
+      <p>No alarm messages found</p>
+      <span class="hint">Alarm messages are pushed by the T-BOX when events occur (door open, charging, etc.)</span>
+    </div>
+
+    <div class="alarm-entries">
+      <mat-card *ngFor="let alarm of alarms" class="alarm-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="alarm-icon">notification_important</mat-icon>
+          <mat-card-title>{{ alarm.title || 'Alarm #' + alarm.messageId }}</mat-card-title>
+          <mat-card-subtitle>{{ formatDate(alarm.messageTime) }} &middot; Type: {{ alarm.messageType || 'n/a' }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <pre class="alarm-json">{{ formatJson(alarm) }}</pre>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
