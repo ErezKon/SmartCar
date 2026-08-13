@@ -10,8 +10,8 @@ services:
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     volumes:
-      - backend-data:/app/data
-      - backend-logs:/app/logs
+      - ./backend/data:/app/data
+      - ./backend/logs:/app/logs
     env_file:
       - ./backend/.env
     environment:
@@ -43,8 +43,3 @@ services:
       retries: 3
       start_period: 5s
 
-volumes:
-  backend-data:
-    driver: local
-  backend-logs:
-    driver: local

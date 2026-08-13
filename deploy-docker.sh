@@ -22,6 +22,9 @@ if [ ! -f ".env" ] && [ "$ACTION" = "up" ]; then
     echo ""
 fi
 
+  # Ensure host-side bind-mount directories exist
+mkdir -p "$ROOT_DIR/backend/data" "$ROOT_DIR/backend/logs"
+
 case "$ACTION" in
     up)
         echo "Building and starting containers..."
