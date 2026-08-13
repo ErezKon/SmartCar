@@ -1,0 +1,58 @@
+<mat-card class="info-card climate-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>thermostat</mat-icon>
+    <mat-card-title>Climate</mat-card-title>
+    <mat-card-subtitle>
+      <app-status-badge [status]="isClimateOn ? 'Active' : 'Off'" size="small"></app-status-badge>
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="temp-display">
+      <div class="temp-item">
+        <mat-icon>wb_sunny</mat-icon>
+        <span class="temp-label">Outside</span>
+        <span class="temp-value">{{ externalTemp }}</span>
+      </div>
+      <div class="temp-item">
+        <mat-icon>weekend</mat-icon>
+        <span class="temp-label">Inside</span>
+        <span class="temp-value">{{ internalTemp }}</span>
+      </div>
+    </div>
+    <div class="climate-controls">
+      <mat-form-field appearance="outline" class="climate-field">
+        <mat-label>Mode</mat-label>
+        <mat-select [ngModel]="climateMode" (ngModelChange)="onModeChange($event)">
+          <mat-option value="ac">A/C</mat-option>
+          <mat-option value="front">Defrost</mat-option>
+          <mat-option value="blowing">Fan Only</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="climate-field">
+        <mat-label>Target Temp</mat-label>
+        <mat-select [ngModel]="climateTemp" (ngModelChange)="onTempChange($event)">
+          <mat-option *ngFor="let t of temps" [value]="t">
+            {{ t }} C
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="climate-field">
+        <mat-label>Fan Speed</mat-label>
+        <mat-select [ngModel]="climateFanSpeed" (ngModelChange)="onFanSpeedChange($event)">
+          <mat-option [value]="1">Low</mat-option>
+          <mat-option [value]="2">Medium</mat-option>
+          <mat-option [value]="3">High</mat-option>
+          <mat-option [value]="5">Defrost</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <app-command-button label="Start" icon="ac_unit" color="primary"
+      [status]="climateStartStatus" [loading]="climateStartStatus === 'loading'"
+      (execute)="startClimate.emit()"></app-command-button>
+    <app-command-button label="Stop" icon="stop" color="warn"
+      [status]="climateStopStatus" [loading]="climateStopStatus === 'loading'"
+      (execute)="stopClimate.emit()"></app-command-button>
+  </mat-card-actions>
+</mat-card>

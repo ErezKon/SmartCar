@@ -1,0 +1,59 @@
+.info-card {
+  mat-icon[mat-card-avatar] {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    color: white;
+  }
+
+  mat-card-actions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+  }
+}
+
+.climate-card mat-icon[mat-card-avatar] { background: #9c27b0; }
+
+.temp-display {
+  display: flex;
+  justify-content: space-around;
+  padding: 16px 0;
+
+  .temp-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #ff9800;
+    }
+
+    .temp-label {
+      font-size: 0.85rem;
+      color: rgba(0, 0, 0, 0.54);
+    }
+
+    .temp-value {
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+  }
+}
+
+.climate-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+
+  .climate-field {
+    flex: 1;
+  }
+}

@@ -1,0 +1,33 @@
+<mat-card class="info-card charging-schedule-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>schedule</mat-icon>
+    <mat-card-title>Charging Schedule</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="schedule-controls">
+      <div class="time-row">
+        <mat-form-field appearance="outline" class="time-field">
+          <mat-label>Start Time</mat-label>
+          <input matInput type="time" [ngModel]="chargingScheduleStart" (ngModelChange)="onStartChange($event)">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="time-field">
+          <mat-label>End Time</mat-label>
+          <input matInput type="time" [ngModel]="chargingScheduleEnd" (ngModelChange)="onEndChange($event)">
+        </mat-form-field>
+      </div>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Mode</mat-label>
+        <mat-select [ngModel]="chargingScheduleMode" (ngModelChange)="onModeChange($event)">
+          <mat-option value="disabled">Disabled</mat-option>
+          <mat-option value="until_target_soc">Until Target SOC</mat-option>
+          <mat-option value="until_scheduled_time">Until Scheduled Time</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <app-command-button label="Apply Schedule" icon="save" color="primary"
+      [status]="chargingScheduleStatus" [loading]="chargingScheduleStatus === 'loading'"
+      (execute)="applyChargingSchedule.emit()"></app-command-button>
+  </mat-card-actions>
+</mat-card>

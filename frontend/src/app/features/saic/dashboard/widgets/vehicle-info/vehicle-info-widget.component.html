@@ -1,0 +1,38 @@
+<mat-card class="info-card vehicle-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>directions_car</mat-icon>
+    <mat-card-title>{{ vehicle?.modelName || 'Vehicle' }}</mat-card-title>
+    <mat-card-subtitle>{{ vehicle?.brandName }} {{ vehicle?.modelYear }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="info-row">
+      <span class="label">Odometer</span>
+      <span class="value">{{ odometer }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">VIN</span>
+      <span class="value mono">{{ vin }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Series</span>
+      <span class="value">{{ vehicle?.series || 'N/A' }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Journey</span>
+      <span class="value">{{ journeyDistance }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Engine</span>
+      <span class="value">{{ isEngineRunning ? 'Running' : 'Off' }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Hand Brake</span>
+      <span class="value">{{ isHandBrakeEngaged ? 'Engaged' : 'Released' }}</span>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <app-command-button label="Find Car" icon="volume_up" color="accent"
+      [status]="findStatus" [loading]="findStatus === 'loading'"
+      (execute)="findVehicle.emit()"></app-command-button>
+  </mat-card-actions>
+</mat-card>

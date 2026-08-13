@@ -1,0 +1,49 @@
+.info-card {
+  mat-icon[mat-card-avatar] {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    color: white;
+  }
+
+  mat-card-actions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+  }
+}
+
+.charge-limit-card mat-icon[mat-card-avatar] { background: #009688; }
+
+.full-width { width: 100%; }
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+
+  .control-field {
+    flex: 1;
+  }
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+
+  > span {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .toggle-actions {
+    display: flex;
+    gap: 8px;
+  }
+}

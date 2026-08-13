@@ -1,0 +1,37 @@
+.info-card {
+  mat-icon[mat-card-avatar] {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    color: white;
+  }
+}
+
+.tyre-card mat-icon[mat-card-avatar] { background: #607d8b; }
+
+.tyre-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px 0;
+
+  .tyre-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+
+    .tyre-label {
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.54);
+    }
+
+    .tyre-value {
+      font-weight: 500;
+    }
+  }
+}

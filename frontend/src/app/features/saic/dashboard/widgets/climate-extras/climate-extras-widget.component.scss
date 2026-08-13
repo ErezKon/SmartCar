@@ -1,0 +1,56 @@
+.info-card {
+  mat-icon[mat-card-avatar] {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    color: white;
+  }
+
+  mat-card-actions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+  }
+}
+
+.extras-card mat-icon[mat-card-avatar] { background: #e91e63; }
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+
+  > span {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .toggle-actions {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.seats-heat-controls {
+  padding: 12px 0;
+
+  .section-label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+
+  .seats-row {
+    display: flex;
+    gap: 8px;
+
+    .seat-field {
+      flex: 1;
+    }
+  }
+}

@@ -1,0 +1,23 @@
+.info-card {
+  mat-icon[mat-card-avatar] {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    color: white;
+  }
+}
+
+.stats-card mat-icon[mat-card-avatar] { background: #ff5722; }
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  .label { color: rgba(0, 0, 0, 0.54); }
+  .value { font-weight: 500; }
+}

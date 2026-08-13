@@ -1,0 +1,27 @@
+.info-card {
+  mat-icon[mat-card-avatar] {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    color: white;
+  }
+
+  mat-card-actions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+  }
+}
+
+.heating-schedule-card mat-icon[mat-card-avatar] { background: #8bc34a; }
+
+.full-width { width: 100%; }
+
+.schedule-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

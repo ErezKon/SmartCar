@@ -207,3 +207,6 @@ export interface SaicChargingStats {
 
 // Provider type
 export type ProviderType = 'smartcar' | 'saic';
+
+// Command status for dashboard widgets
+export type CmdStatus = 'idle' | 'loading' | 'success' | 'error';

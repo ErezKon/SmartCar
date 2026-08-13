@@ -1,0 +1,24 @@
+<mat-card class="info-card security-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>shield</mat-icon>
+    <mat-card-title>Security</mat-card-title>
+    <mat-card-subtitle>
+      <app-status-badge [status]="isLocked ? 'Locked' : 'Unlocked'" size="small"></app-status-badge>
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="lock-display">
+      <mat-icon class="lock-icon" [class.locked]="isLocked">
+        {{ isLocked ? 'lock' : 'lock_open' }}
+      </mat-icon>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <app-command-button label="Lock" icon="lock" color="primary"
+      [status]="lockStatus" [loading]="lockStatus === 'loading'"
+      (execute)="lockDoors.emit()"></app-command-button>
+    <app-command-button label="Unlock" icon="lock_open" color="accent"
+      [status]="unlockStatus" [loading]="unlockStatus === 'loading'"
+      (execute)="unlockDoors.emit()"></app-command-button>
+  </mat-card-actions>
+</mat-card>

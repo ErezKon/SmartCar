@@ -4,47 +4,47 @@ export const routes: Routes = [
   { path: '', redirectTo: 'saic/dashboard', pathMatch: 'full' },
   {
     path: 'dashboard',
-    loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
+    loadComponent: () => import('./features/smart-car/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
   {
     path: 'connect',
-    loadComponent: () => import('./features/connect/connect.component').then(m => m.ConnectComponent)
+    loadComponent: () => import('./features/smart-car/connect/connect.component').then(m => m.ConnectComponent)
   },
   {
     path: 'signals',
-    loadComponent: () => import('./features/signals/signals.component').then(m => m.SignalsComponent)
+    loadComponent: () => import('./features/smart-car/signals/signals.component').then(m => m.SignalsComponent)
   },
   {
     path: 'commands',
-    loadComponent: () => import('./features/commands/commands.component').then(m => m.CommandsComponent)
+    loadComponent: () => import('./features/smart-car/commands/commands.component').then(m => m.CommandsComponent)
   },
   {
     path: 'webhooks',
-    loadComponent: () => import('./features/webhooks/webhooks.component').then(m => m.WebhooksComponent)
+    loadComponent: () => import('./features/smart-car/webhooks/webhooks.component').then(m => m.WebhooksComponent)
   },
   {
     path: 'compatibility',
-    loadComponent: () => import('./features/compatibility/compatibility.component').then(m => m.CompatibilityComponent)
+    loadComponent: () => import('./features/smart-car/compatibility/compatibility.component').then(m => m.CompatibilityComponent)
   },
   {
     path: 'settings',
-    loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
+    loadComponent: () => import('./features/smart-car/settings/settings.component').then(m => m.SettingsComponent)
   },
   {
     path: 'saic/connect',
-    loadComponent: () => import('./features/saic/saic-connect.component').then(m => m.SaicConnectComponent)
+    loadComponent: () => import('./features/saic/connect/saic-connect.component').then(m => m.SaicConnectComponent)
   },
   {
     path: 'saic/dashboard',
-    loadComponent: () => import('./features/saic/saic-dashboard.component').then(m => m.SaicDashboardComponent)
+    loadComponent: () => import('./features/saic/dashboard/saic-dashboard.component').then(m => m.SaicDashboardComponent)
   },
   {
     path: 'saic/statistics',
-    loadComponent: () => import('./features/saic/saic-statistics.component').then(m => m.SaicStatisticsComponent)
+    loadComponent: () => import('./features/saic/statistics/saic-statistics.component').then(m => m.SaicStatisticsComponent)
   },
   {
     path: 'saic/alarms',
-    loadComponent: () => import('./features/saic/saic-alarms.component').then(m => m.SaicAlarmsComponent)
+    loadComponent: () => import('./features/saic/alarms/saic-alarms.component').then(m => m.SaicAlarmsComponent)
   },
   { path: '**', redirectTo: 'saic/dashboard' }
 ];

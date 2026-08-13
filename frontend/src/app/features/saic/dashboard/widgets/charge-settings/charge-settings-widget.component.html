@@ -1,0 +1,53 @@
+<mat-card class="info-card charge-limit-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>ev_station</mat-icon>
+    <mat-card-title>Charge Settings</mat-card-title>
+    <mat-card-subtitle>Current limit: {{ currentChargeLimits }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Target SOC</mat-label>
+      <mat-select [ngModel]="chargeLimit" (ngModelChange)="onChargeLimitChange($event)">
+        <mat-option [value]="40">40%</mat-option>
+        <mat-option [value]="50">50%</mat-option>
+        <mat-option [value]="60">60%</mat-option>
+        <mat-option [value]="70">70%</mat-option>
+        <mat-option [value]="80">80%</mat-option>
+        <mat-option [value]="90">90%</mat-option>
+        <mat-option [value]="100">100%</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-divider></mat-divider>
+    <div class="control-row" style="margin-top: 12px;">
+      <mat-form-field appearance="outline" class="control-field">
+        <mat-label>Charge Current</mat-label>
+        <mat-select [ngModel]="chargeCurrent" (ngModelChange)="onChargeCurrentChange($event)">
+          <mat-option value="6A">6A</mat-option>
+          <mat-option value="8A">8A</mat-option>
+          <mat-option value="16A">16A</mat-option>
+          <mat-option value="Max">Max</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <app-command-button label="Set" icon="electrical_services" color="primary"
+        [status]="chargeCurrentStatus" [loading]="chargeCurrentStatus === 'loading'"
+        (execute)="applyChargeCurrent.emit()"></app-command-button>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="toggle-row">
+      <span>Charging Cable</span>
+      <div class="toggle-actions">
+        <app-command-button label="Lock" icon="lock" color="primary"
+          [status]="cableLockStatus" [loading]="cableLockStatus === 'loading'"
+          (execute)="setCableLock.emit(true)"></app-command-button>
+        <app-command-button label="Unlock" icon="lock_open" color="accent"
+          [status]="cableLockStatus" [loading]="cableLockStatus === 'loading'"
+          (execute)="setCableLock.emit(false)"></app-command-button>
+      </div>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary" (click)="applyChargeLimit.emit()">
+      <mat-icon>save</mat-icon> Apply Limit
+    </button>
+  </mat-card-actions>
+</mat-card>

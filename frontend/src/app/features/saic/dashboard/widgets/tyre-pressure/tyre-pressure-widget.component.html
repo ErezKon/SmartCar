@@ -1,0 +1,26 @@
+<mat-card class="info-card tyre-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>tire_repair</mat-icon>
+    <mat-card-title>Tyre Pressures</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="tyre-grid">
+      <div class="tyre-item">
+        <span class="tyre-label">FL</span>
+        <span class="tyre-value">{{ tyres.fl }}</span>
+      </div>
+      <div class="tyre-item">
+        <span class="tyre-label">FR</span>
+        <span class="tyre-value">{{ tyres.fr }}</span>
+      </div>
+      <div class="tyre-item">
+        <span class="tyre-label">RL</span>
+        <span class="tyre-value">{{ tyres.rl }}</span>
+      </div>
+      <div class="tyre-item">
+        <span class="tyre-label">RR</span>
+        <span class="tyre-value">{{ tyres.rr }}</span>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

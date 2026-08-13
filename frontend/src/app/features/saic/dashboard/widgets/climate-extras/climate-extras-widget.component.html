@@ -1,0 +1,72 @@
+<mat-card class="info-card extras-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>tune</mat-icon>
+    <mat-card-title>Climate Extras</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="toggle-row">
+      <span>Heated Steering Wheel</span>
+      <div class="toggle-actions">
+        <app-command-button label="On" icon="check" color="primary"
+          [status]="heatedSteeringStatus" [loading]="heatedSteeringStatus === 'loading'"
+          (execute)="setHeatedSteering.emit(true)"></app-command-button>
+        <app-command-button label="Off" icon="close" color="warn"
+          [status]="heatedSteeringStatus" [loading]="heatedSteeringStatus === 'loading'"
+          (execute)="setHeatedSteering.emit(false)"></app-command-button>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="toggle-row">
+      <span>Front Defrost</span>
+      <div class="toggle-actions">
+        <app-command-button label="On" icon="check" color="primary"
+          [status]="frontDefrostStatus" [loading]="frontDefrostStatus === 'loading'"
+          (execute)="setFrontDefrost.emit(true)"></app-command-button>
+        <app-command-button label="Off" icon="close" color="warn"
+          [status]="frontDefrostStatus" [loading]="frontDefrostStatus === 'loading'"
+          (execute)="setFrontDefrost.emit(false)"></app-command-button>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="toggle-row">
+      <span>Rear Window Heat</span>
+      <div class="toggle-actions">
+        <app-command-button label="On" icon="check" color="primary"
+          [status]="rearWindowHeatStatus" [loading]="rearWindowHeatStatus === 'loading'"
+          (execute)="setRearWindowHeat.emit(true)"></app-command-button>
+        <app-command-button label="Off" icon="close" color="warn"
+          [status]="rearWindowHeatStatus" [loading]="rearWindowHeatStatus === 'loading'"
+          (execute)="setRearWindowHeat.emit(false)"></app-command-button>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="seats-heat-controls">
+      <span class="section-label">Heated Seats</span>
+      <div class="seats-row">
+        <mat-form-field appearance="outline" class="seat-field">
+          <mat-label>Driver</mat-label>
+          <mat-select [ngModel]="seatHeatDriverLevel" (ngModelChange)="onDriverLevelChange($event)">
+            <mat-option [value]="0">Off</mat-option>
+            <mat-option [value]="1">Low</mat-option>
+            <mat-option [value]="2">Medium</mat-option>
+            <mat-option [value]="3">High</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="seat-field">
+          <mat-label>Passenger</mat-label>
+          <mat-select [ngModel]="seatHeatPassengerLevel" (ngModelChange)="onPassengerLevelChange($event)">
+            <mat-option [value]="0">Off</mat-option>
+            <mat-option [value]="1">Low</mat-option>
+            <mat-option [value]="2">Medium</mat-option>
+            <mat-option [value]="3">High</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <app-command-button label="Apply Seats" icon="event_seat" color="primary"
+      [status]="seatsHeatStatus" [loading]="seatsHeatStatus === 'loading'"
+      (execute)="applySeatsHeat.emit()"></app-command-button>
+  </mat-card-actions>
+</mat-card>

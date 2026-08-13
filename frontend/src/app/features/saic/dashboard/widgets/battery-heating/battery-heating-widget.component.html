@@ -1,0 +1,26 @@
+<mat-card class="info-card heating-schedule-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>device_thermostat</mat-icon>
+    <mat-card-title>Battery Heating Schedule</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="schedule-controls">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Start Time</mat-label>
+        <input matInput type="time" [ngModel]="batteryHeatingStart" (ngModelChange)="onStartChange($event)">
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Mode</mat-label>
+        <mat-select [ngModel]="batteryHeatingMode" (ngModelChange)="onModeChange($event)">
+          <mat-option value="on">Enabled</mat-option>
+          <mat-option value="off">Disabled</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <app-command-button label="Apply Schedule" icon="save" color="primary"
+      [status]="batteryHeatingScheduleStatus" [loading]="batteryHeatingScheduleStatus === 'loading'"
+      (execute)="applyBatteryHeatingSchedule.emit()"></app-command-button>
+  </mat-card-actions>
+</mat-card>

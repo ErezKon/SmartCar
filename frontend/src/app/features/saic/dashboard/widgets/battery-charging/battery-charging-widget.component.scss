@@ -1,0 +1,78 @@
+.info-card {
+  mat-icon[mat-card-avatar] {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    color: white;
+  }
+
+  mat-card-actions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+  }
+}
+
+.battery-card mat-icon[mat-card-avatar] { background: #4caf50; }
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  .label { color: rgba(0, 0, 0, 0.54); }
+  .value { font-weight: 500; }
+}
+
+.battery-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+
+  .battery-bar {
+    flex: 1;
+    height: 24px;
+    background: #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+
+    .battery-fill {
+      height: 100%;
+      border-radius: 12px;
+      transition: width 0.5s ease;
+
+      &.low { background: #f44336; }
+      &.mid { background: #ff9800; }
+      &.high { background: #4caf50; }
+    }
+  }
+
+  .battery-pct {
+    font-size: 1.5rem;
+    font-weight: 500;
+    min-width: 60px;
+    text-align: right;
+  }
+}
+
+.session-logging {
+  padding-top: 8px;
+
+  .section-label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.54);
+    margin-bottom: 8px;
+  }
+
+  .session-logging-actions {
+    display: flex;
+    gap: 8px;
+  }
+}

@@ -1,0 +1,68 @@
+<mat-card class="info-card battery-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>battery_charging_full</mat-icon>
+    <mat-card-title>Battery & Charging</mat-card-title>
+    <mat-card-subtitle>
+      <app-status-badge [status]="isCharging ? 'Charging' : (cableConnected ? 'Plugged In' : 'Not Charging')" size="small"></app-status-badge>
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="battery-indicator">
+      <div class="battery-bar">
+        <div class="battery-fill" [style.width.%]="batteryLevel"
+             [class.low]="batteryLevel < 20"
+             [class.mid]="batteryLevel >= 20 && batteryLevel < 50"
+             [class.high]="batteryLevel >= 50"></div>
+      </div>
+      <span class="battery-pct">{{ batteryLevel }}%</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Range</span>
+      <span class="value">{{ range }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Power</span>
+      <span class="value">{{ chargeWattage }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Time to Full</span>
+      <span class="value">{{ chargeTimeRemaining }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Status</span>
+      <span class="value">{{ chargingStatus }}</span>
+    </div>
+    <div class="info-row" *ngIf="chargingType !== 'N/A'">
+      <span class="label">Type</span>
+      <span class="value">{{ chargingType }}</span>
+    </div>
+    <div class="info-row" *ngIf="chargingDuration !== 'N/A'">
+      <span class="label">Duration</span>
+      <span class="value">{{ chargingDuration }}</span>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <app-command-button label="Start Charge" icon="bolt" color="primary"
+      [status]="chargeStartStatus" [loading]="chargeStartStatus === 'loading'"
+      (execute)="startCharging.emit()"></app-command-button>
+    <app-command-button label="Stop Charge" icon="stop" color="warn"
+      [status]="chargeStopStatus" [loading]="chargeStopStatus === 'loading'"
+      (execute)="stopCharging.emit()"></app-command-button>
+  </mat-card-actions>
+  <mat-divider></mat-divider>
+  <mat-card-content class="session-logging">
+    <span class="section-label">Session Logging</span>
+    <div class="session-logging-actions">
+      <app-command-button label="Log Charge Start" icon="play_arrow" color="primary"
+        [status]="logChargeStartStatus" [loading]="logChargeStartStatus === 'loading'"
+        [disabled]="hasActiveChargingSession || logChargeStartStatus === 'loading'"
+        (execute)="logChargeStart.emit()"
+        matTooltip="Record the start of a charging session for statistics tracking"></app-command-button>
+      <app-command-button label="Log Charge Stop" icon="stop_circle" color="accent"
+        [status]="logChargeStopStatus" [loading]="logChargeStopStatus === 'loading'"
+        [disabled]="!hasActiveChargingSession || logChargeStopStatus === 'loading'"
+        (execute)="logChargeStop.emit()"
+        matTooltip="Record the end of a charging session and calculate efficiency"></app-command-button>
+    </div>
+  </mat-card-content>
+</mat-card>

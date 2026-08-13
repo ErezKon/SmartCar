@@ -1,0 +1,34 @@
+<mat-card class="info-card windows-card">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>window</mat-icon>
+    <mat-card-title>Windows & Sunroof</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="control-row">
+      <mat-form-field appearance="outline" class="control-field">
+        <mat-label>Windows</mat-label>
+        <mat-select [ngModel]="windowAction" (ngModelChange)="onWindowActionChange($event)">
+          <mat-option value="close">Close</mat-option>
+          <mat-option value="ventilate">Ventilate</mat-option>
+          <mat-option value="open">Open</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <app-command-button label="Apply" icon="check" color="primary"
+        [status]="windowsStatus" [loading]="windowsStatus === 'loading'"
+        (execute)="controlWindows.emit()"></app-command-button>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="control-row">
+      <mat-form-field appearance="outline" class="control-field">
+        <mat-label>Sunroof</mat-label>
+        <mat-select [ngModel]="sunroofAction" (ngModelChange)="onSunroofActionChange($event)">
+          <mat-option value="close">Close</mat-option>
+          <mat-option value="open">Open</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <app-command-button label="Apply" icon="check" color="primary"
+        [status]="sunroofStatus" [loading]="sunroofStatus === 'loading'"
+        (execute)="controlSunroof.emit()"></app-command-button>
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,192 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h2>
+      <mat-icon>electric_car</mat-icon>
+      SAIC Vehicle Dashboard
+    </h2>
+    <div class="header-actions">
+      <mat-form-field appearance="outline" *ngIf="vehicles.length > 1" class="vehicle-select">
+        <mat-label>Vehicle</mat-label>
+        <mat-select [(ngModel)]="selectedVin" (selectionChange)="onVehicleChange()">
+          <mat-option *ngFor="let v of vehicles" [value]="v.vin">
+            {{ v.modelName || v.series }} ({{ v.vin.slice(-6) }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-chip-set *ngIf="pollingEnabled" class="polling-chip">
+        <mat-chip color="primary" highlighted
+          matTooltip="Server is polling the car every {{ pollingIntervalMs / 1000 }}s. Data refreshes automatically.">
+          <mat-icon matChipAvatar>sync</mat-icon>
+          Auto
+        </mat-chip>
+      </mat-chip-set>
+      <mat-chip-set *ngIf="!pollingEnabled" class="polling-chip">
+        <mat-chip
+          matTooltip="Manual mode — click refresh to wake the vehicle and fetch live data.">
+          <mat-icon matChipAvatar>sync_disabled</mat-icon>
+          Manual
+        </mat-chip>
+      </mat-chip-set>
+      <button mat-icon-button (click)="refreshLive()" [disabled]="refreshing"
+        [matTooltip]="pollingEnabled ? 'Force live refresh (wakes vehicle)' : 'Wake vehicle and refresh'">
+        <mat-spinner *ngIf="refreshing" diameter="24"></mat-spinner>
+        <mat-icon *ngIf="!refreshing">refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="refreshing" class="wake-warning">
+    <mat-icon>warning</mat-icon>
+    <span>Waking vehicle for live data. This drains the 12V battery if done frequently.</span>
+  </div>
+
+  <div *ngIf="loading && !refreshing" class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading vehicle data...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon>warning</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" routerLink="/saic/connect">Connect Account</button>
+  </div>
+
+  <div *ngIf="!loading && !error && selectedVin" class="dashboard-grid">
+    <app-vehicle-info-widget
+      [vehicle]="selectedVehicle"
+      [vin]="selectedVin"
+      [odometer]="odometer"
+      [journeyDistance]="journeyDistance"
+      [isEngineRunning]="isEngineRunning"
+      [isHandBrakeEngaged]="isHandBrakeEngaged"
+      [findStatus]="findStatus"
+      (findVehicle)="findVehicle()">
+    </app-vehicle-info-widget>
+
+    <app-battery-charging-widget
+      [batteryLevel]="batteryLevel"
+      [range]="range"
+      [isCharging]="isCharging"
+      [cableConnected]="cableConnected"
+      [chargeWattage]="chargeWattage"
+      [chargeTimeRemaining]="chargeTimeRemaining"
+      [chargingStatus]="chargingStatus"
+      [chargingType]="chargingType"
+      [chargingDuration]="chargingDuration"
+      [chargeStartStatus]="chargeStartStatus"
+      [chargeStopStatus]="chargeStopStatus"
+      [logChargeStartStatus]="logChargeStartStatus"
+      [logChargeStopStatus]="logChargeStopStatus"
+      [hasActiveChargingSession]="hasActiveChargingSession"
+      (startCharging)="startCharging()"
+      (stopCharging)="stopCharging()"
+      (logChargeStart)="logChargeStart()"
+      (logChargeStop)="logChargeStop()">
+    </app-battery-charging-widget>
+
+    <app-security-widget
+      [isLocked]="isLocked"
+      [lockStatus]="lockStatus"
+      [unlockStatus]="unlockStatus"
+      (lockDoors)="lockDoors()"
+      (unlockDoors)="unlockDoors()">
+    </app-security-widget>
+
+    <app-windows-sunroof-widget
+      [windowAction]="windowAction"
+      [sunroofAction]="sunroofAction"
+      [windowsStatus]="windowsStatus"
+      [sunroofStatus]="sunroofStatus"
+      (windowActionChange)="windowAction = $event"
+      (sunroofActionChange)="sunroofAction = $event"
+      (controlWindows)="controlWindows()"
+      (controlSunroof)="controlSunroof()">
+    </app-windows-sunroof-widget>
+
+    <app-climate-widget
+      [isClimateOn]="isClimateOn"
+      [externalTemp]="externalTemp"
+      [internalTemp]="internalTemp"
+      [climateMode]="climateMode"
+      [climateTemp]="climateTemp"
+      [climateFanSpeed]="climateFanSpeed"
+      [climateStartStatus]="climateStartStatus"
+      [climateStopStatus]="climateStopStatus"
+      (climateModeChange)="climateMode = $event"
+      (climateTempChange)="climateTemp = $event"
+      (climateFanSpeedChange)="climateFanSpeed = $event"
+      (startClimate)="startClimate()"
+      (stopClimate)="stopClimate()">
+    </app-climate-widget>
+
+    <app-climate-extras-widget
+      [heatedSteeringStatus]="heatedSteeringStatus"
+      [frontDefrostStatus]="frontDefrostStatus"
+      [rearWindowHeatStatus]="rearWindowHeatStatus"
+      [seatsHeatStatus]="seatsHeatStatus"
+      [seatHeatDriverLevel]="seatHeatDriverLevel"
+      [seatHeatPassengerLevel]="seatHeatPassengerLevel"
+      (seatHeatDriverLevelChange)="seatHeatDriverLevel = $event"
+      (seatHeatPassengerLevelChange)="seatHeatPassengerLevel = $event"
+      (setHeatedSteering)="setHeatedSteering($event)"
+      (setFrontDefrost)="setFrontDefrost($event)"
+      (setRearWindowHeat)="setRearWindowHeat($event)"
+      (applySeatsHeat)="applySeatsHeat()">
+    </app-climate-extras-widget>
+
+    <app-location-widget
+      [location]="location">
+    </app-location-widget>
+
+    <app-tyre-pressure-widget
+      [tyres]="tyres">
+    </app-tyre-pressure-widget>
+
+    <app-driving-stats-widget
+      [mileageToday]="mileageToday"
+      [energyToday]="energyToday"
+      [mileageSinceCharge]="mileageSinceCharge"
+      [energySinceCharge]="energySinceCharge"
+      [lightsStatus]="lightsStatus">
+    </app-driving-stats-widget>
+
+    <app-charge-settings-widget
+      [chargeLimit]="chargeLimit"
+      [chargeCurrent]="chargeCurrent"
+      [chargeCurrentStatus]="chargeCurrentStatus"
+      [cableLockStatus]="cableLockStatus"
+      [currentChargeLimits]="getSignal('charge-chargelimits')"
+      (chargeLimitChange)="chargeLimit = $event"
+      (chargeCurrentChange)="chargeCurrent = $event"
+      (applyChargeLimit)="applyChargeLimit()"
+      (applyChargeCurrent)="applyChargeCurrent()"
+      (setCableLock)="setCableLock($event)">
+    </app-charge-settings-widget>
+
+    <app-charging-schedule-widget
+      [chargingScheduleStart]="chargingScheduleStart"
+      [chargingScheduleEnd]="chargingScheduleEnd"
+      [chargingScheduleMode]="chargingScheduleMode"
+      [chargingScheduleStatus]="chargingScheduleStatus"
+      (chargingScheduleStartChange)="chargingScheduleStart = $event"
+      (chargingScheduleEndChange)="chargingScheduleEnd = $event"
+      (chargingScheduleModeChange)="chargingScheduleMode = $event"
+      (applyChargingSchedule)="applyChargingSchedule()">
+    </app-charging-schedule-widget>
+
+    <app-battery-heating-widget
+      [batteryHeatingStart]="batteryHeatingStart"
+      [batteryHeatingMode]="batteryHeatingMode"
+      [batteryHeatingScheduleStatus]="batteryHeatingScheduleStatus"
+      (batteryHeatingStartChange)="batteryHeatingStart = $event"
+      (batteryHeatingModeChange)="batteryHeatingMode = $event"
+      (applyBatteryHeatingSchedule)="applyBatteryHeatingSchedule()">
+    </app-battery-heating-widget>
+
+    <app-command-history-widget
+      [commandLogs]="commandLogs"
+      [logColumns]="logColumns"
+      (loadCommandLogs)="loadCommandLogs()">
+    </app-command-history-widget>
+  </div>
+</div>

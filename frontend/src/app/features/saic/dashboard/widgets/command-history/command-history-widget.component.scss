@@ -1,0 +1,35 @@
+:host {
+  grid-column: 1 / -1;
+}
+
+.info-card {
+  mat-icon[mat-card-avatar] {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    color: white;
+  }
+}
+
+.history-card mat-icon[mat-card-avatar] { background: #795548; }
+
+.wide-card {
+  grid-column: 1 / -1;
+}
+
+.load-history-btn {
+  margin-bottom: 12px;
+}
+
+.log-table {
+  width: 100%;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: rgba(0, 0, 0, 0.38);
+}
