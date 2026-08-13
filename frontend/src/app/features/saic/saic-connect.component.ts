@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -19,7 +20,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
   standalone: true,
   imports: [
     CommonModule, FormsModule, MatCardModule, MatInputModule,
-    MatFormFieldModule, MatSelectModule, MatButtonModule,
+    MatFormFieldModule, MatSelectModule, MatButtonModule, MatDividerModule,
     MatIconModule, MatProgressSpinnerModule, MatSnackBarModule,
     StatusBadgeComponent
   ],
@@ -32,6 +33,7 @@ export class SaicConnectComponent implements OnInit, OnDestroy {
   region = 'il';
   connecting = false;
   disconnecting = false;
+  showReconnectForm = false;
   loadingStatus = true;
   accountStatus: SaicAccountStatus | null = null;
   error: string | null = null;
@@ -90,6 +92,7 @@ export class SaicConnectComponent implements OnInit, OnDestroy {
         next: res => {
           this.connecting = false;
           this.password = '';
+          this.showReconnectForm = false;
           this.snackBar.open(`Connected as ${res.username} in ${res.region}`, 'OK', { duration: 4000 });
           this.loadAccountStatus();
         },

@@ -119,7 +119,8 @@ export class SaicRepository {
   }
 
   deleteAccount(): void {
-    this.db.run('DELETE FROM saic_charging_sessions');
+    // Note: saic_charging_sessions is intentionally preserved — it contains
+    // valuable historical data that should survive account disconnect/reconnect.
     this.db.run('DELETE FROM saic_messages');
     this.db.run('DELETE FROM saic_command_logs');
     this.db.run('DELETE FROM saic_state_snapshots');

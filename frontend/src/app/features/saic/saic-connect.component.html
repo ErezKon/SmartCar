@@ -31,11 +31,62 @@
         <span class="value">{{ accountStatus!.createdAt }}</span>
       </div>
     </mat-card-content>
+    <!-- Reconnect form (inline, no disconnect needed) -->
+    <mat-card-content *ngIf="showReconnectForm" class="reconnect-form">
+      <mat-divider></mat-divider>
+      <p class="reconnect-note">Re-enter your credentials to refresh the session. Your charging history and statistics will be preserved.</p>
+
+      <div *ngIf="error" class="error-banner">
+        <mat-icon>error</mat-icon>
+        <span>{{ error }}</span>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email or Phone</mat-label>
+        <input matInput [(ngModel)]="username" placeholder="user@example.com">
+        <mat-icon matPrefix>person</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" [(ngModel)]="password" placeholder="iSmart password">
+        <mat-icon matPrefix>lock</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Region</mat-label>
+        <mat-select [(ngModel)]="region">
+          <mat-option *ngFor="let r of regions" [value]="r.value">{{ r.label }}</mat-option>
+        </mat-select>
+        <mat-icon matPrefix>public</mat-icon>
+      </mat-form-field>
+    </mat-card-content>
+
     <mat-card-actions>
+      <button mat-raised-button color="primary"
+              *ngIf="!showReconnectForm"
+              (click)="showReconnectForm = true; error = null">
+        <mat-icon>refresh</mat-icon>
+        Reconnect
+      </button>
+      <button mat-raised-button color="primary"
+              *ngIf="showReconnectForm"
+              (click)="connect()"
+              [disabled]="connecting || !username || !password">
+        <mat-spinner *ngIf="connecting" diameter="18" class="inline-spinner"></mat-spinner>
+        <mat-icon *ngIf="!connecting">login</mat-icon>
+        Reconnect
+      </button>
+      <button mat-button
+              *ngIf="showReconnectForm"
+              (click)="showReconnectForm = false; error = null">
+        Cancel
+      </button>
+      <span class="spacer"></span>
       <button mat-raised-button color="warn" (click)="disconnect()" [disabled]="disconnecting">
         <mat-spinner *ngIf="disconnecting" diameter="18" class="inline-spinner"></mat-spinner>
         <mat-icon *ngIf="!disconnecting">link_off</mat-icon>
-        Disconnect
+        Remove Account
       </button>
     </mat-card-actions>
   </mat-card>
