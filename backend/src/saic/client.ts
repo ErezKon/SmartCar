@@ -15,6 +15,7 @@ import {
 } from './errors';
 import { sleep, redactSensitive } from '../utils/helpers';
 import { logger } from '../utils/logger';
+import { isRequestLoggingEnabled, logSaicRequest } from './request-logger';
 
 export interface SaicApiResponse<T = unknown> {
   code: number;
@@ -126,6 +127,8 @@ export class SaicClient {
     }
 
     const url = `${this.region.baseUri}${requestPath}`;
+    const shouldLog = isRequestLoggingEnabled();
+    const reqStartTime = shouldLog ? Date.now() : 0;
     logger.debug(`SAIC ${method} ${requestPath}`);
 
     const fetchOptions: RequestInit = {
@@ -141,6 +144,15 @@ export class SaicClient {
 
     // Handle HTTP-level auth errors
     if (response.status === 401 || response.status === 403) {
+      if (shouldLog) {
+        logSaicRequest({
+          timestamp: new Date().toISOString(),
+          request: { method, path: requestPath, body: body ?? undefined, eventId },
+          response: { httpStatus: response.status },
+          durationMs: Date.now() - reqStartTime,
+          error: `HTTP ${response.status}`,
+        });
+      }
       throw new SaicAuthError(`SAIC API returned ${response.status}`);
     }
 
@@ -148,6 +160,15 @@ export class SaicClient {
       let errorBody = '';
       try { errorBody = await response.text(); } catch { /* ignore */ }
       logger.error(`SAIC API HTTP ${response.status} for ${method} ${requestPath}: ${errorBody.slice(0, 500)}`);
+      if (shouldLog) {
+        logSaicRequest({
+          timestamp: new Date().toISOString(),
+          request: { method, path: requestPath, body: body ?? undefined, eventId },
+          response: { httpStatus: response.status, message: errorBody.slice(0, 1000) },
+          durationMs: Date.now() - reqStartTime,
+          error: `HTTP ${response.status}`,
+        });
+      }
       throw new SaicApiError(
         `SAIC API returned HTTP ${response.status}`,
         response.status
@@ -157,6 +178,14 @@ export class SaicClient {
     // Decrypt response
     const responseText = await response.text();
     if (!responseText) {
+      if (shouldLog) {
+        logSaicRequest({
+          timestamp: new Date().toISOString(),
+          request: { method, path: requestPath, body: body ?? undefined, eventId },
+          response: { httpStatus: response.status, code: 0 },
+          durationMs: Date.now() - reqStartTime,
+        });
+      }
       return { code: 0 } as SaicApiResponse<T>;
     }
 
@@ -177,6 +206,22 @@ export class SaicClient {
       parsed = JSON.parse(plaintext);
     } catch {
       throw new SaicApiError(`Failed to parse SAIC response: ${redactSensitive(plaintext.slice(0, 200))}`, 500);
+    }
+
+    // Log the decrypted request/response pair
+    if (shouldLog) {
+      logSaicRequest({
+        timestamp: new Date().toISOString(),
+        request: { method, path: requestPath, body: body ?? undefined, eventId },
+        response: {
+          httpStatus: response.status,
+          code: parsed.code,
+          data: parsed.data,
+          message: parsed.message,
+          eventId: respEventId ?? undefined,
+        },
+        durationMs: Date.now() - reqStartTime,
+      });
     }
 
     // Check for API-level errors

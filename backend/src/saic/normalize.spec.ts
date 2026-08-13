@@ -173,6 +173,32 @@ describe('SAIC Normalize', () => {
       expect(journey!.value).toBe(150);
       expect(journey!.unit).toBe('km');
     });
+
+    it('should skip negative fuelRangeElec (sentinel value -128)', () => {
+      const statusWithBadRange: VehicleStatusResp = {
+        ...sampleStatus,
+        basicVehicleStatus: {
+          ...sampleStatus.basicVehicleStatus,
+          fuelRangeElec: -128, // sentinel value -> -12.8 km
+        },
+      };
+      const signals = normalizeVehicleStatus(statusWithBadRange);
+      const range = signals.find(s => s.code === 'tractionbattery-range');
+      expect(range).toBeUndefined();
+    });
+
+    it('should skip negative currentJourneyDistance (sentinel value)', () => {
+      const statusWithBadJourney: VehicleStatusResp = {
+        ...sampleStatus,
+        basicVehicleStatus: {
+          ...sampleStatus.basicVehicleStatus,
+          currentJourneyDistance: -128,
+        },
+      };
+      const signals = normalizeVehicleStatus(statusWithBadJourney);
+      const journey = signals.find(s => s.code === 'saic-current-journey-distance');
+      expect(journey).toBeUndefined();
+    });
   });
 
   describe('normalizeChargingData', () => {
@@ -400,6 +426,34 @@ describe('SAIC Normalize', () => {
       expect(signals.find(s => s.code === 'saic-charging-duration')).toBeUndefined();
       expect(signals.find(s => s.code === 'saic-charging-stop-reason')).toBeUndefined();
       expect(signals.find(s => s.code === 'saic-charging-gun-state')).toBeUndefined();
+    });
+
+    it('should skip negative bmsEstdElecRng (sentinel value)', () => {
+      const withBadRange: ChrgMgmtDataResp = {
+        ...sampleCharging,
+        chrgMgmtData: { ...sampleCharging.chrgMgmtData, bmsEstdElecRng: -128 },
+      };
+      const signals = normalizeChargingData(withBadRange);
+      const range = signals.find(s => s.code === 'tractionbattery-range');
+      expect(range).toBeUndefined();
+    });
+
+    it('should skip negative mileageOfDay (sentinel value)', () => {
+      const withBadMileage: ChrgMgmtDataResp = {
+        ...sampleCharging,
+        rvsChargeStatus: { mileageOfDay: -128 },
+      };
+      const signals = normalizeChargingData(withBadMileage);
+      expect(signals.find(s => s.code === 'saic-mileage-today')).toBeUndefined();
+    });
+
+    it('should skip negative powerUsageOfDay (sentinel value)', () => {
+      const withBadEnergy: ChrgMgmtDataResp = {
+        ...sampleCharging,
+        rvsChargeStatus: { powerUsageOfDay: -128 },
+      };
+      const signals = normalizeChargingData(withBadEnergy);
+      expect(signals.find(s => s.code === 'saic-energy-today')).toBeUndefined();
     });
   });
 });

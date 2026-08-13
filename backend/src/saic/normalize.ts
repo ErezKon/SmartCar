@@ -2,6 +2,15 @@ import type { VehicleStatusResp, ChrgMgmtDataResp } from './types';
 import { BMS_CHARGING_STATUS, TARGET_SOC_MAP, CHARGE_CURRENT_LIMIT_MAP, CHARGING_TYPE_MAP, CHARGING_STOP_REASON_MAP } from './types';
 
 /**
+ * Check whether a range/distance value is plausible.
+ * The SAIC API returns sentinel values (e.g. -128 / 65535) when data is
+ * unavailable.  Negative or unreasonably large values should be discarded.
+ */
+function isValidRange(km: number): boolean {
+  return km >= 0 && km <= 9999;
+}
+
+/**
  * Normalized signal compatible with the app's signal-code vocabulary.
  * Uses the same codes as Smartcar where a genuine equivalent exists;
  * SAIC-only fields keep a `saic-` prefix.
@@ -53,13 +62,16 @@ export function normalizeVehicleStatus(
 
   // Electric range (raw * 0.1 = km)
   if (status.fuelRangeElec !== undefined) {
-    signals.push({
-      code: 'tractionbattery-range',
-      value: +(status.fuelRangeElec * 0.1).toFixed(1),
-      unit: 'km',
-      dataAge: ts,
-      source: 'saic',
-    });
+    const rangeKm = +(status.fuelRangeElec * 0.1).toFixed(1);
+    if (isValidRange(rangeKm)) {
+      signals.push({
+        code: 'tractionbattery-range',
+        value: rangeKm,
+        unit: 'km',
+        dataAge: ts,
+        source: 'saic',
+      });
+    }
   }
 
   // Temperatures
@@ -258,13 +270,16 @@ export function normalizeVehicleStatus(
 
   // Phase 1: current journey distance (raw * 0.1 = km)
   if (status.currentJourneyDistance !== undefined) {
-    signals.push({
-      code: 'saic-current-journey-distance',
-      value: +(status.currentJourneyDistance * 0.1).toFixed(1),
-      unit: 'km',
-      dataAge: ts,
-      source: 'saic',
-    });
+    const journeyKm = +(status.currentJourneyDistance * 0.1).toFixed(1);
+    if (isValidRange(journeyKm)) {
+      signals.push({
+        code: 'saic-current-journey-distance',
+        value: journeyKm,
+        unit: 'km',
+        dataAge: ts,
+        source: 'saic',
+      });
+    }
   }
 
   return signals;
@@ -384,7 +399,7 @@ export function normalizeChargingData(
   }
 
   // Estimated range
-  if (mgmt.bmsEstdElecRng !== undefined) {
+  if (mgmt.bmsEstdElecRng !== undefined && isValidRange(mgmt.bmsEstdElecRng)) {
     signals.push({
       code: 'tractionbattery-range',
       value: mgmt.bmsEstdElecRng,
@@ -448,46 +463,58 @@ export function normalizeChargingData(
 
   // Phase 1: mileage of the day (raw * 0.1 = km) — from rvsChargeStatus
   if (rvs?.mileageOfDay !== undefined) {
-    signals.push({
-      code: 'saic-mileage-today',
-      value: +(rvs.mileageOfDay * 0.1).toFixed(1),
-      unit: 'km',
-      dataAge: ts,
-      source: 'saic',
-    });
+    const valKm = +(rvs.mileageOfDay * 0.1).toFixed(1);
+    if (isValidRange(valKm)) {
+      signals.push({
+        code: 'saic-mileage-today',
+        value: valKm,
+        unit: 'km',
+        dataAge: ts,
+        source: 'saic',
+      });
+    }
   }
 
   // Phase 1: mileage since last charge (raw * 0.1 = km) — from rvsChargeStatus
   if (rvs?.mileageSinceLastCharge !== undefined) {
-    signals.push({
-      code: 'saic-mileage-since-charge',
-      value: +(rvs.mileageSinceLastCharge * 0.1).toFixed(1),
-      unit: 'km',
-      dataAge: ts,
-      source: 'saic',
-    });
+    const valKm = +(rvs.mileageSinceLastCharge * 0.1).toFixed(1);
+    if (isValidRange(valKm)) {
+      signals.push({
+        code: 'saic-mileage-since-charge',
+        value: valKm,
+        unit: 'km',
+        dataAge: ts,
+        source: 'saic',
+      });
+    }
   }
 
   // Phase 1: power usage since last charge (raw * 0.1 = kWh) — from rvsChargeStatus
   if (rvs?.powerUsageSinceLastCharge !== undefined) {
-    signals.push({
-      code: 'saic-energy-since-charge',
-      value: +(rvs.powerUsageSinceLastCharge * 0.1).toFixed(1),
-      unit: 'kWh',
-      dataAge: ts,
-      source: 'saic',
-    });
+    const valKwh = +(rvs.powerUsageSinceLastCharge * 0.1).toFixed(1);
+    if (valKwh >= 0) {
+      signals.push({
+        code: 'saic-energy-since-charge',
+        value: valKwh,
+        unit: 'kWh',
+        dataAge: ts,
+        source: 'saic',
+      });
+    }
   }
 
   // Phase 1: power usage of the day (raw * 0.1 = kWh) — from rvsChargeStatus
   if (rvs?.powerUsageOfDay !== undefined) {
-    signals.push({
-      code: 'saic-energy-today',
-      value: +(rvs.powerUsageOfDay * 0.1).toFixed(1),
-      unit: 'kWh',
-      dataAge: ts,
-      source: 'saic',
-    });
+    const valKwh = +(rvs.powerUsageOfDay * 0.1).toFixed(1);
+    if (valKwh >= 0) {
+      signals.push({
+        code: 'saic-energy-today',
+        value: valKwh,
+        unit: 'kWh',
+        dataAge: ts,
+        source: 'saic',
+      });
+    }
   }
 
   // Phase 1: charging type — from rvsChargeStatus

@@ -18,3 +18,6 @@ backend/data/smartcar.db-shm
 
 # Backend logs
 backend/logs/
+
+# SAIC API request/response logs
+backend/data/saic-api-log.jsonl

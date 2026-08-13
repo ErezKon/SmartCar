@@ -17,6 +17,7 @@ interface EnvConfig {
   SAIC_REGION: string;
   SAIC_POLLING_ENABLED: boolean;
   SAIC_POLL_INTERVAL_MS: number;
+  SAIC_LOG_REQUESTS: boolean;
 }
 
 function getEnvVar(key: string, required = true): string {
@@ -41,4 +42,5 @@ export const env: EnvConfig = {
   SAIC_REGION: getEnvVar('SAIC_REGION', false) || 'il',
   SAIC_POLLING_ENABLED: getEnvVar('SAIC_POLLING_ENABLED', false).toLowerCase() === 'true',
   SAIC_POLL_INTERVAL_MS: parseInt(getEnvVar('SAIC_POLL_INTERVAL_MS', false) || '30000', 10),
+  SAIC_LOG_REQUESTS: getEnvVar('SAIC_LOG_REQUESTS', false).toLowerCase() === 'true',
 };
